@@ -1,0 +1,12 @@
+from django.urls import path
+
+from .views import ClientCreate, ClientList, ClientDetail, ClientUpdate, ClientDelete
+
+urlpatterns = [
+    path('api/v1/customers/create-tenant/', ClientCreate.as_view(), name='create-tenant'),
+    path('api/v1/customers/tenants/', ClientList.as_view(), name='list-tenants'),
+    path('api/v1/customers/tenants/<int:id>/', ClientDetail.as_view(), name='tenant-detail'),
+    path('api/v1/customers/tenants/<int:id>/update/', ClientUpdate.as_view(), name='tenant-update'),
+    path('api/v1/customers/tenants/<int:id>/delete/', ClientDelete.as_view(), name='tenant-delete'),
+
+]
