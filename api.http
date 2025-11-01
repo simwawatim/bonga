@@ -1,0 +1,11 @@
+###
+http://127.0.0.1:5000/api/customers/
+Content-Type: application/json
+
+{
+  "tenant_id": "gob",
+  "name": "Alice",
+  "address": "Main Street",
+  "customerTpin": 123456789,
+  "is_active": true
+}

@@ -57,43 +57,43 @@ DATABASE_ROUTERS = (
 INSTALLED_APPS = SHARED_APPS + TENANT_APPS
 
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django_tenants.postgresql_backend',
-#         'NAME': 'erp_tenant',
-#         'USER': 'erp_user',
-#         'PASSWORD': 'yourpassword',
-#         'HOST': 'localhost',
-#         'PORT': '5432',
-#     }
-# }
-
-
-
 DATABASES = {
     'default': {
         'ENGINE': 'django_tenants.postgresql_backend',
-        'NAME': 'neondb',  # database name from the URL
-        'USER': 'neondb_owner',  # username from the URL
-        'PASSWORD': 'npg_rXiwOqZ4Tv1L',  # password from the URL
-        'HOST': 'ep-autumn-thunder-ahsegkph-pooler.c-3.us-east-1.aws.neon.tech',  # host from the URL
-        'PORT': '5432',  # default Postgres port
-        'OPTIONS': {
-            'sslmode': 'require',
-            'channel_binding': 'require',
-        }
+        'NAME': 'erp_tenant',
+        'USER': 'erp_user',
+        'PASSWORD': 'yourpassword',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 
+
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django_tenants.postgresql_backend',
+#         'NAME': 'neondb',  # database name from the URL
+#         'USER': 'neondb_owner',  # username from the URL
+#         'PASSWORD': 'npg_rXiwOqZ4Tv1L',  # password from the URL
+#         'HOST': 'ep-autumn-thunder-ahsegkph-pooler.c-3.us-east-1.aws.neon.tech',  # host from the URL
+#         'PORT': '5432',  # default Postgres port
+#         'OPTIONS': {
+#             'sslmode': 'require',
+#             'channel_binding': 'require',
+#         }
+#     }
+# }
+
 MIDDLEWARE = [
-    'django_tenants.middleware.main.TenantMainMiddleware',  # must be first
+    # 'django_tenants.middleware.main.TenantMainMiddleware',  # must be first
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    # 'tenant_router.middleware.SmartTenantRoutingMiddleware',
+    'tenant_router.middleware.SmartTenantRoutingMiddleware',
 ]
 
 
