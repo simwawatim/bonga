@@ -1,44 +1,60 @@
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.response import Response
-from rest_framework import status, permissions
+from rest_framework.views import APIView
+from rest_framework import status
+from django.shortcuts import get_object_or_404
 from base.models import CustomerInfo
 from base.serializers.customers.customer_serializer import CustomerInfoSerializer
+from base.utils.response_handler import api_response
+from zra_client.create_customer import CreateUser
+from rest_framework.response import Response
 
-@api_view(['GET', 'POST'])
-@permission_classes([permissions.IsAuthenticated])
-def customer_list_create(request):
-    if request.method == 'GET':
+
+class CustomerInfoListCreateView(APIView):
+    def get(self, request):
         customers = CustomerInfo.objects.all()
         serializer = CustomerInfoSerializer(customers, many=True)
-        return Response(serializer.data)
+        return api_response("success", serializer.data, status_code=200)
 
-    elif request.method == 'POST':
+    def post(self, request):
         serializer = CustomerInfoSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(created_by=request.user)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+            zra_client = CreateUser()
+            zra_response = zra_client.prepare_save_customer_payload()
+            data = zra_response.json()
+
+            print(data)
+
+            if data.get("resultCd") != "000":
+                return Response(
+                    {   
+                        "error": "ZRA customer creation failed",
+                        "zra_result": zra_response
+                    },
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            serializer.save()
+            return api_response("success", serializer.data, status_code=201)
+        first_field, messages = next(iter(serializer.errors.items()))
+        return api_response("error", f"{first_field}: {messages[0]}", status_code=400, is_error=True)
 
 
-@api_view(['GET', 'PUT', 'DELETE'])
-@permission_classes([permissions.IsAuthenticated])
-def customer_detail(request, pk):
-    try:
-        customer = CustomerInfo.objects.get(pk=pk)
-    except CustomerInfo.DoesNotExist:
-        return Response({'error': 'Customer not found'}, status=status.HTTP_404_NOT_FOUND)
-
-    if request.method == 'GET':
+class CustomerInfoDetailView(APIView):
+    def get(self, request, pk):
+        customer = get_object_or_404(CustomerInfo, pk=pk)
         serializer = CustomerInfoSerializer(customer)
-        return Response(serializer.data)
+        return api_response("success", serializer.data, status_code=200)
 
-    elif request.method == 'PUT':
+    def put(self, request, pk):
+        customer = get_object_or_404(CustomerInfo, pk=pk)
         serializer = CustomerInfoSerializer(customer, data=request.data, partial=True)
         if serializer.is_valid():
-            serializer.save(updated_by=request.user)
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            serializer.save()
+            return api_response("success", serializer.data)
+        # First error only
+        first_field, messages = next(iter(serializer.errors.items()))
+        return api_response("error", f"{first_field}: {messages[0]}", status_code=400, is_error=True)
 
-    elif request.method == 'DELETE':
+    def delete(self, request, pk):
+        customer = get_object_or_404(CustomerInfo, pk=pk)
         customer.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return api_response("success", "Customer deleted successfully.", status_code=204, is_error=False)

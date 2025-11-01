@@ -5,6 +5,6 @@ from base.views.customers import customer_view
 urlpatterns = [
     path('users/create/', create_user, name='create_user'),
     path('users/', list_users, name='list_users'),
-    path('customers/', customer_view.customer_list_create, name='customer-list-create'),
-    path('customers/<int:pk>/', customer_view.customer_detail, name='customer-detail'),
+    path('customers/', customer_view.CustomerInfoListCreateView.as_view(), name='customer-list-create'),
+    path('customers/<int:pk>/', customer_view.CustomerInfoDetailView.as_view(), name='customer-detail'),
 ]

@@ -187,3 +187,7 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 PUBLIC_SCHEMA_URLCONF = 'customers.urls'
+
+REST_FRAMEWORK = {
+    'EXCEPTION_HANDLER': 'base.utils.exception_handler.custom_exception_handler'
+}
