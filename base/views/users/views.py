@@ -47,7 +47,7 @@ def create_user(request):
     zra_creator = CreateUser()
     last_user = User.objects.last()
     last_id = last_user.id
-    zra_response = zra_creator.prepare_save_user_payload(username, email, address, is_active, last_id)
+    zra_response = zra_creator.prepare_save_user_payload(username, address, is_active, last_id)
     data = zra_response.json()
 
     if data.get("resultCd") != "000":
