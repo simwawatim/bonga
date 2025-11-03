@@ -8,5 +8,6 @@ urlpatterns = [
     path('api/v1/customers/tenants/<int:id>/', ClientDetail.as_view(), name='tenant-detail'),
     path('api/v1/customers/tenants/<int:id>/update/', ClientUpdate.as_view(), name='tenant-update'),
     path('api/v1/customers/tenants/<int:id>/delete/', ClientDelete.as_view(), name='tenant-delete'),
+    
 
 ]
