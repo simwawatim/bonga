@@ -1,6 +1,6 @@
-from django.http import JsonResponse
 from django_tenants.utils import schema_context, get_tenant_model
 from django.db import connection, ProgrammingError
+from django.http import JsonResponse
 import json
 
 class SmartTenantRoutingMiddleware:

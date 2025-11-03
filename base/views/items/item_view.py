@@ -6,6 +6,7 @@ from base.serializers.item.item_serializer import ItemInfoSerializer
 from base.utils.response_handler import api_response
 from rest_framework.response import Response
 from zra_client.create_item import CreateItem
+from django.db.models import ProtectedError
 
 
 class ItemInfoListCreateView(APIView):
@@ -68,6 +69,26 @@ class ItemInfoDetailView(APIView):
         return api_response("error", f"{first_field}: {messages[0]}", status_code=400, is_error=True)
 
     def delete(self, request, pk):
-        item = get_object_or_404(ItemInfo, pk=pk)
-        item.delete()
-        return api_response("success", "Item deleted successfully.", status_code=204, is_error=False)
+        try:
+            item = get_object_or_404(ItemInfo, pk=pk)
+            item.delete()
+            return api_response(
+                "success",
+                "Item deleted successfully.",
+                status_code=200,
+                is_error=False
+            )
+        except ProtectedError:
+            return api_response(
+                "error",
+                "Cannot delete item because it is referenced in other records.",
+                status_code=400,
+                is_error=True
+            )
+        except Exception as e:
+            return api_response(
+                "error",
+                f"Internal server error during delete: {str(e)}",
+                status_code=500,
+                is_error=True
+            )
