@@ -7,15 +7,11 @@ from base.models import StockItem, ItemInfo
 from rest_framework.views import APIView
 from rest_framework import status
 
-
-
-
-
 class StockItemListCreateView(APIView):
     def get(self, request):
-        stock_items = StockItem.objects.select_related('stock_item', 'created_by').all()
+        stock_items = StockItem.objects.select_related('item', 'created_by').all()
         serializer = StockItemSerializer(stock_items, many=True)
-        return api_response("success", serializer.data, status_code=200)
+        return api_response("success", serializer.data, status_code=status.HTTP_200_OK)
 
     def post(self, request):
         try:
@@ -48,13 +44,33 @@ class StockItemListCreateView(APIView):
                 status_code=500,
                 is_error=True
             )
-
-
+        
 class StockItemDetailView(APIView):
+
+
     def get(self, request, pk):
-        stock_item = get_object_or_404(StockItem, pk=pk)
-        serializer = StockItemSerializer(stock_item)
-        return api_response("success", serializer.data, status_code=200)
+        try:
+            item = get_object_or_404(ItemInfo, pk=pk)
+            stock_items = StockItem.objects.filter(item=item)
+            
+            if not stock_items.exists():
+                return api_response(
+                    "error",
+                    "No stock items found for the specified item.",
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    is_error=True
+                )
+            serializer = StockItemSerializer(stock_items, many=True)
+            return api_response("success", serializer.data, status_code=200)
+        
+        except Exception as e:
+            return api_response(
+                "error",
+                f"An internal server error occurred: {str(e)}",
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                is_error=True
+            )
+
 
     def put(self, request, pk):
         stock_item = get_object_or_404(StockItem, pk=pk)
@@ -63,7 +79,8 @@ class StockItemDetailView(APIView):
             serializer.save()
             return api_response("success", serializer.data)
         field, messages = next(iter(serializer.errors.items()))
-        return api_response("error", f"{field}: {messages[0]}", status_code=400, is_error=True)
+        return api_response("error", f"{field}: {messages[0]}", status_code=status.HTTP_400_BAD_REQUEST, is_error=True)
+    
 
     def delete(self, request, pk):
         try:

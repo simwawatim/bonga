@@ -91,7 +91,7 @@ class StockItem(models.Model):
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='stockitemdetail_created')
 
     def __str__(self):
-        return f"{self.stock_item} ({self.qty} units at {self.prc} each)"
+        return f"{self.item} ({self.qty} units at {self.prc} each)"
 
 class ItemStockMaster(models.Model):
     item = models.ForeignKey(ItemInfo, on_delete=models.CASCADE, related_name='stock_masters')
