@@ -101,3 +101,16 @@ class ItemStockMaster(models.Model):
 
     def __str__(self):
         return f"StockMaster for {self.item.code} - Available: {self.available_qty}"
+    
+
+class Supplier(models.Model):
+    tpin = models.IntegerField(unique=True)
+    name = models.CharField(max_length=200)
+    address = models.CharField(max_length=300)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="supplier_created")
+    updated_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="supplier_updated", null=True, blank=True)
+
+    def __str__(self):
+        return super().__str__() + f" - {self.name}"
