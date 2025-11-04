@@ -3,14 +3,9 @@ from rest_framework.response import Response
 from rest_framework import status
 
 def custom_exception_handler(exc, context):
-    """
-    Custom exception handler to return consistent single-error responses.
-    """
-    # Let DRF handle the default exception first
     response = exception_handler(exc, context)
 
     if response is not None:
-        # If serializer validation error
         if isinstance(response.data, dict):
             error_message = None
 
