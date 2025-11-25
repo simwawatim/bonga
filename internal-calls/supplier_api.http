@@ -1,0 +1,39 @@
+### Get all suppliers
+GET http://127.0.0.1:8000/api/suppliers/
+Accept: application/json
+
+###
+
+### Create a new supplier
+POST http://127.0.0.1:8000/api/suppliers/
+Content-Type: application/json
+
+{
+  "name": "New Supplier",
+  "email": "supplier@example.com",
+  "phone": "+260123456789",
+  "address": "123 Supplier St, Lusaka"
+}
+
+###
+
+### Get a single supplier
+GET http://127.0.0.1:8000/api/suppliers/1/
+Accept: application/json
+
+###
+
+### Update a supplier (partial)
+PUT http://127.0.0.1:8000/api/suppliers/1/
+Content-Type: application/json
+
+{
+  "phone": "+260987654321",
+  "address": "Updated Address, Lusaka"
+}
+
+###
+
+### Delete a supplier
+DELETE http://127.0.0.1:8000/api/suppliers/1/
+Accept: application/json

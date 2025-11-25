@@ -37,6 +37,7 @@ TENANT_DOMAIN_MODEL = "customers.Domain"
 SHARED_APPS = [
     'django_tenants',
     'django.contrib.contenttypes',
+    'rest_framework',
     'customers',
 
 ]
@@ -67,6 +68,13 @@ DATABASES = {
         'PORT': '5432',
     }
 }
+
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+    )
+}
+
 
 
 
