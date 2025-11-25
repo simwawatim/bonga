@@ -109,8 +109,20 @@ class Supplier(models.Model):
     address = models.CharField(max_length=300)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="supplier_created")
-    updated_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="supplier_updated", null=True, blank=True)
+    created_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="suppliers_created"
+    )
+    updated_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="suppliers_updated"
+    )
 
     def __str__(self):
         return super().__str__() + f" - {self.name}"

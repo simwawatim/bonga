@@ -5,6 +5,7 @@ from django.shortcuts import get_object_or_404
 from base.models import Supplier
 from base.serializers.supplier.supplier_serializers import SupplierSerializer
 
+
 class SupplierListCreateAPIView(APIView):
     def get(self, request):
         suppliers = Supplier.objects.all()
@@ -45,7 +46,7 @@ class SupplierDetailAPIView(APIView):
         supplier = self.get_object(pk)
         serializer = SupplierSerializer(supplier, data=request.data, partial=True)
         if serializer.is_valid():
-            serializer.save(updated_by=request.user)
+            serializer.save()
             return Response({
                 "status": "success",
                 "message": "Supplier updated successfully",
