@@ -126,3 +126,56 @@ class Supplier(models.Model):
 
     def __str__(self):
         return super().__str__() + f" - {self.name}"
+
+
+class Sale(models.Model):
+    tpin = models.CharField(max_length=20)
+    bhf_id = models.CharField(max_length=10)
+    org_invc_no = models.IntegerField()
+    cis_invc_no = models.CharField(max_length=50)
+    cust_tpin = models.CharField(max_length=20, blank=True, null=True)
+    cust_nm = models.CharField(max_length=255)
+    sales_ty_cd = models.CharField(max_length=5)
+    rcpt_ty_cd = models.CharField(max_length=5)
+    pmt_ty_cd = models.CharField(max_length=5)
+    sales_stts_cd = models.CharField(max_length=5)
+    cfm_dt = models.CharField(max_length=20)  
+    sales_dt = models.CharField(max_length=10) 
+    tot_item_cnt = models.IntegerField()
+    tot_taxbl_amt = models.FloatField()
+    tot_tax_amt = models.FloatField()
+    tot_amt = models.FloatField()
+    
+    result_cd = models.CharField(max_length=10, blank=True, null=True)
+    result_msg = models.CharField(max_length=255, blank=True, null=True)
+    result_dt = models.CharField(max_length=20, blank=True, null=True)
+    rcpt_no = models.IntegerField(blank=True, null=True)
+    intrl_data = models.CharField(max_length=100, blank=True, null=True)
+    rcpt_sign = models.CharField(max_length=50, blank=True, null=True)
+    vsdc_rcpt_pbct_date = models.CharField(max_length=20, blank=True, null=True)
+    sdc_id = models.CharField(max_length=50, blank=True, null=True)
+    mrc_no = models.CharField(max_length=50, blank=True, null=True)
+    qr_code_url = models.URLField(blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.cust_nm} - {self.cis_invc_no}"
+
+
+class SaleItem(models.Model):
+    sale = models.ForeignKey(Sale, related_name="items", on_delete=models.CASCADE)
+    item = models.ForeignKey('ItemInfo', on_delete=models.PROTECT)
+    qty = models.FloatField()
+    prc = models.FloatField()
+    sply_amt = models.FloatField()
+    vat_taxbl_amt = models.FloatField()
+    vat_amt = models.FloatField()
+    ipl_taxbl_amt = models.FloatField(default=0.0)
+    ipl_amt = models.FloatField(default=0.0)
+    tl_taxbl_amt = models.FloatField(default=0.0)
+    tl_amt = models.FloatField(default=0.0)
+    ecm_taxbl_amt = models.FloatField(default=0.0)
+    ecm_amt = models.FloatField(default=0.0)
+    tot_amt = models.FloatField()
+
+    def __str__(self):
+        return f"{self.item.name} ({self.sale.cis_invc_no})"
