@@ -129,8 +129,6 @@ class Supplier(models.Model):
 
 
 class Sale(models.Model):
-    tpin = models.CharField(max_length=20)
-    bhf_id = models.CharField(max_length=10)
     org_invc_no = models.IntegerField()
     cis_invc_no = models.CharField(max_length=50)
     cust_tpin = models.CharField(max_length=20, blank=True, null=True)
@@ -145,16 +143,8 @@ class Sale(models.Model):
     tot_taxbl_amt = models.FloatField()
     tot_tax_amt = models.FloatField()
     tot_amt = models.FloatField()
-    
-    result_cd = models.CharField(max_length=10, blank=True, null=True)
-    result_msg = models.CharField(max_length=255, blank=True, null=True)
-    result_dt = models.CharField(max_length=20, blank=True, null=True)
     rcpt_no = models.IntegerField(blank=True, null=True)
-    intrl_data = models.CharField(max_length=100, blank=True, null=True)
-    rcpt_sign = models.CharField(max_length=50, blank=True, null=True)
-    vsdc_rcpt_pbct_date = models.CharField(max_length=20, blank=True, null=True)
     sdc_id = models.CharField(max_length=50, blank=True, null=True)
-    mrc_no = models.CharField(max_length=50, blank=True, null=True)
     qr_code_url = models.URLField(blank=True, null=True)
 
     def __str__(self):

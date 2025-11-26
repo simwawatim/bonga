@@ -13,7 +13,7 @@ class ValidateCustomer:
             customer = CustomerInfo.objects.get(id=customer_id)
             return {
                 "customerName": customer.name,
-                "customerType": customer.customerTpin,
+                "customerTpin": customer.customerTpin,
             }
         except ObjectDoesNotExist:
             return None

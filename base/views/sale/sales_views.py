@@ -1,4 +1,4 @@
-from base.serializers.sales.sales_serializers import SaleSerializer, SaleItemSerializer
+from base.serializers.sales.sales_serializers import SaleDetailSerializer, SaleSerializer, SaleItemSerializer, SaleSummarySerializer
 from base.utils.response_handler import api_response
 from base.views.sale.sales_helper import NormalSaleHelper
 from rest_framework.response import Response
@@ -10,7 +10,7 @@ from django.shortcuts import get_object_or_404
 class SaleListCreateAPIView(APIView):
     def get(self, request):
         sales = Sale.objects.all()
-        serializer = SaleSerializer(sales, many=True)
+        serializer = SaleSummarySerializer(sales, many=True)
         return Response(serializer.data)
 
     def post(self, request):
@@ -31,7 +31,7 @@ class SaleRetrieveAPIView(APIView):
 class SaleItemListCreateAPIView(APIView):
     def get(self, request):
         items = SaleItem.objects.all()
-        serializer = SaleItemSerializer(items, many=True)
+        serializer = SaleDetailSerializer(items, many=True)
         return Response(serializer.data)
 
     def post(self, request):

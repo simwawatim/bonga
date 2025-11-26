@@ -321,7 +321,8 @@ class NormaSale(ZRAClient):
         print(f"Response from ZRA: {response}")
         
         if response.get("resultCd") == "000":
-            rcpt_no = response.get("data", {}).get("rcptNo")
+            zraRcptNo = response.get("data", {}).get("rcptNo")
+            zraQrCodeUrl = response.get("data", {}).get("qrCodeUrl")
             # self.update_sales_rcptno_by_inv_no(name, rcpt_no, 1)
 
             additionInfoToBeSaved = []
@@ -448,7 +449,10 @@ class NormaSale(ZRAClient):
                         "resultCd": response_status,
                         "resultMsg": response_message,
                         "additionalInfo": additionInfoToBeSaved,
-                        "additionInfoToBeSavedItem": additionInfoToBeSavedItem 
+                        "additionInfoToBeSavedItem": additionInfoToBeSavedItem,
+                        "payload": payload,
+                        "zraRcptNo": zraRcptNo,
+                        "zraQrCodeUrl": zraQrCodeUrl
                     }
                     
                 else:
