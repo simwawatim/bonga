@@ -1,4 +1,6 @@
 from base.serializers.sales.sales_serializers import SaleSerializer, SaleItemSerializer
+from base.utils.response_handler import api_response
+from base.views.sale.sales_helper import NormalSaleHelper
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from base.models import Sale, SaleItem
@@ -12,11 +14,13 @@ class SaleListCreateAPIView(APIView):
         return Response(serializer.data)
 
     def post(self, request):
-        serializer = SaleSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        data = request.data
+        result = NormalSaleHelper().process_sale(data)
+        
+        if isinstance(result, Response):
+            return result
+        return api_response("success", result)
+
 
 class SaleRetrieveAPIView(APIView):
     def get(self, request, pk):

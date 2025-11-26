@@ -1,14 +1,9 @@
 from rest_framework.response import Response
 
-def api_response(status: str, data=None, status_code=200, is_error=False):
-
-    if is_error:
-        return Response({
-            "status": status,
-            "message": data or "An error occurred."
-        }, status=status_code)
-    
-    return Response({
+def api_response(status: str, data=None, status_code=200, is_error=False, message=None):
+    response_payload = {
         "status": status,
-        "data": data or {}
-    }, status=status_code)
+        "message": message or ("An error occurred." if is_error else "Request was successful."),
+        "data": {} if is_error else (data or {})
+    }
+    return Response(response_payload, status=status_code)
