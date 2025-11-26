@@ -1,7 +1,5 @@
-# sales/serializers.py
 from rest_framework import serializers
-from .models import Sale, SaleItem
-from items.models import ItemInfo
+from base.models import Sale, SaleItem, ItemInfo
 
 class SaleItemSerializer(serializers.ModelSerializer):
     item_name = serializers.ReadOnlyField(source='item.name')
