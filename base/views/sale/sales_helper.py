@@ -17,7 +17,6 @@ class NormalSaleHelper:
         destnCountryCd = sale_data.get("destnCountryCd")
         items = sale_data.get("items", [])
 
-        # --- Basic validations ---
         if not items or not isinstance(items, list):
             return api_response("error", "At least one sale item is required.", 400, True)
 
@@ -89,7 +88,6 @@ class NormalSaleHelper:
                 "TlCd": tlCd
             })
 
-        # --- Main sale payload ---
         sale_payload = {
             "name": 1,
             "customerName": customer_details.get("customerName"),
@@ -107,8 +105,6 @@ class NormalSaleHelper:
 
         if result.get("resultCd") != "000":
             return api_response("fail", result.get("resultMsg", "Unknown error from ZRA"), 400)
-
-        # --- Save Sale record ---
         sale = Sale.objects.create(
             org_invc_no=returnedPayload.get("orgInvcNo"),
             cis_invc_no=returnedPayload.get("cisInvcNo"),
@@ -128,7 +124,6 @@ class NormalSaleHelper:
             qr_code_url=result.get("zraQrCodeUrl")
         )
 
-        # --- Save Sale Items ---
         for item in returnedPayload.get("itemList", []):
             try:
                 item_instance = ItemInfo.objects.get(code=item.get("itemCd"))
