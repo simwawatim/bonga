@@ -1,4 +1,5 @@
 from flask import Flask
+from modules.sales_bp import sales_bp
 from modules.items_bp import items_bp
 from modules.customers import customers_bp
 from modules.users import users_bp
@@ -14,6 +15,7 @@ app.register_blueprint(tenants_bp)
 app.register_blueprint(items_bp)
 app.register_blueprint(stock_bp)
 app.register_blueprint(stock_master_bp)
+app.register_blueprint(sales_bp)
 
 app.register_blueprint(suppliers_bp)
 if __name__ == "__main__":

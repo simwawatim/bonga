@@ -2,7 +2,7 @@ from base.views.stockmaster.stockmasterview import ItemStockMasterListCreateAPIV
 from base.views.supplier.supplier_view import SupplierDetailAPIView, SupplierListCreateAPIView
 from base.views.stock.stock_item_view import StockItemDetailView, StockItemListCreateView
 from base.views.items.item_view import ItemInfoDetailView, ItemInfoListCreateView
-from main.base.views.sale.sales_views import SaleListCreateAPIView
+from base.views.sale.sales_views import SaleListCreateAPIView, SaleRetrieveAPIView
 from  base.views.users.views import create_user, list_users
 from base.views.customers import customer_view
 from django.urls import path
@@ -14,6 +14,7 @@ urlpatterns = [
     path('items/', ItemInfoListCreateView.as_view(), name='item-list-create'),
     path('items/<int:pk>/', ItemInfoDetailView.as_view(), name='item-detail'),
     path('sales/', SaleListCreateAPIView.as_view(), name='sale-list-create'),
+    path('sales/<int:pk>/', SaleRetrieveAPIView.as_view(), name='sale-detail'),
     path('stockitems/', StockItemListCreateView.as_view(), name='stockitem-list'),
     path('stockitems/<int:pk>/', StockItemDetailView.as_view(), name='stockitem-detail'),
     path('suppliers/', SupplierListCreateAPIView.as_view(), name='supplier-list-create'),
