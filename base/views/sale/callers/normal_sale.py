@@ -1,6 +1,7 @@
 import random
 # from erpnext.zra_client.generic_api import send_response
 # from erpnext.zra_client.receipt.build import BuildPdf
+from base.models import Sale
 from base.utils.response_handler import api_response
 from zra_client.client import ZRAClient
 from decimal import Decimal, ROUND_HALF_UP
@@ -180,7 +181,8 @@ class NormaSale(ZRAClient):
 
         logged_in_user = "Admin"
         username = "Admin"
-
+        last_sale = Sale.objects.order_by('-id').first()
+        next_invc_no = last_sale.id + 1 if last_sale else 1
         payload = {
             "tpin": self.get_tpin(),
             "bhfId": self.get_branch_code(),

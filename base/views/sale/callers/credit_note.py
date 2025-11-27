@@ -1,3 +1,4 @@
+from base.models import Sale
 from base.views.sale.validations.invoice import ValidateSale
 from base.utils.response_handler import api_response
 from zra_client.client import ZRAClient
@@ -192,12 +193,14 @@ class CreditNoteSale(ZRAClient, ValidateSale):
         logged_in_user = "Admin"
         username = "Admin"
 
+        last_sale = Sale.objects.order_by('-id').first()
+        next_invc_no = last_sale.id + 1 if last_sale else 1
         payload = {
             "tpin": self.get_tpin(),
             "bhfId": self.get_branch_code(),
             "orgSdcId": self.get_origin_sdc_id(),
             "orgInvcNo": originRcptNo,
-            "cisInvcNo":  name,
+            "cisInvcNo":  next_invc_no,
             "custTpin": base_data["cust_tpin"],
             "custNm": base_data["cust_name"],
             "salesTyCd": "N",
@@ -335,7 +338,8 @@ class CreditNoteSale(ZRAClient, ValidateSale):
         print(f"Response from ZRA: {response}")
         
         if response.get("resultCd") == "000":
-            rcpt_no = response.get("data", {}).get("rcptNo")
+            zraRcptNo = response.get("data", {}).get("rcptNo")
+            zraQrCodeUrl = response.get("data", {}).get("qrCodeUrl")
             # print("Updating rctpNo")
             # self.update_sales_rcptno_by_inv_no(name, rcpt_no, 1)
 
@@ -464,7 +468,10 @@ class CreditNoteSale(ZRAClient, ValidateSale):
                     "resultCd": response_status,
                     "resultMsg": response_message,
                     "additionalInfo": additionInfoToBeSaved,
-                    "additionInfoToBeSavedItem": additionInfoToBeSavedItem 
+                    "additionInfoToBeSavedItem": additionInfoToBeSavedItem,
+                    "payload": payload,
+                    "zraRcptNo": zraRcptNo,
+                    "zraQrCodeUrl": zraQrCodeUrl
                 }
 
             else:

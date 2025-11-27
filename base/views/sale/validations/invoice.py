@@ -1,7 +1,5 @@
 from base.models import Sale
 from django.core.exceptions import ObjectDoesNotExist
-from base.utils.response_handler import api_response
-
 
 class ValidateSale:
 
