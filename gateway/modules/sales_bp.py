@@ -14,6 +14,28 @@ def safe_json(response):
         return {"error": "Empty response from server."}
 
 
+@sales_bp.route("/api/sales-credit-note/", methods=["GET", "POST"])
+def sales_credit_note():
+    tenant_id = request.args.get("tenant_id") or request.headers.get("X-Tenant-ID")
+    headers = {"X-Tenant-ID": tenant_id} if tenant_id else {}
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "Missing JSON body"}), 400
+    tenant_id = data.get("tenant_id")
+    if not tenant_id:
+        return jsonify({"status": "error", "message": "Missing tenant_id in body"}), 400
+    headers = {"X-Tenant-ID": tenant_id}
+
+    try:
+        django_response = requests.post(
+            f"{DJANGO_BASE_URL}/sale/credit-note-create/", json=data, headers=headers
+        )
+        return jsonify(safe_json(django_response)), django_response.status_code
+    except requests.exceptions.RequestException as e:
+        return jsonify({"error": str(e)}), 500
+    
+
+    
 @sales_bp.route("/api/sales/", methods=["GET", "POST"])
 def sales():
     tenant_id = request.args.get("tenant_id") or request.headers.get("X-Tenant-ID")

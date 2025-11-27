@@ -1,12 +1,14 @@
 from base.views.sale.validations.customer import ValidateCustomer
+from base.views.sale.validations.invoice import ValidateSale
 from base.views.sale.validations.item import ValidateItem
-from base.views.sale.callers.normal_sale import NormaSale
+from base.views.sale.callers.credit_note import CreditNoteSale
 from base.utils.response_handler import api_response
 from base.models import Sale, SaleItem, ItemInfo
 
 
-class CreditSaleHelper():
+class CreditSaleHelper(CreditNoteSale, ValidateSale):
     def process_credit_note(self, credit_data):
+        originalInvoice = credit_data.get("originalInvoice")
         customerId = credit_data.get("customerId")
         currencyCd = credit_data.get("currencyCd")
         exchangeRt = credit_data.get("exchangeRt") or 1
@@ -15,29 +17,68 @@ class CreditSaleHelper():
         destnCountryCd = credit_data.get("destnCountryCd")
         items = credit_data.get("items", [])
 
+        if not originalInvoice:
+            return api_response(
+                status="error",
+                message="Original invoice number is required.",
+                status_code=400,
+            )
+        
+        if not self.validate_if_sale_exists(originalInvoice):
+            return api_response(
+                status="fail",
+                message=f"Original Invoice '{originalInvoice}' does not exist.",
+                status_code=404
+            )
+
+
         if not items or not isinstance(items, list):
-            return api_response("error", "At least one sale item is required.", 400, True)
+            return api_response(
+                status="error",
+                message="At least one item is required for the credit note.",
+                status_code=400,
+            )
 
         if not createBy:
-            return api_response("error", "Creator information is required.", 400, True)
+            return api_response(
+                status="error",
+                message="Creator information is required.",
+                status_code=400,
+            )
 
         if not currencyCd:
-            return api_response("error", "Currency code is required.", 400, True)
+            return api_response(
+                status="error",
+                message="Currency code is required.",
+                status_code=400,
+            )
 
         allowedCurrencies = ["ZMW", "USD", "ZRA", "GBP", "CNY", "EUR"]
         if currencyCd not in allowedCurrencies:
-            return api_response("error", f"Currency code '{currencyCd}' is not supported.", 400, True)
+            return api_response(
+                status="error",
+                message=f"Currency code '{currencyCd}' is not supported.",
+                status_code=400,
+            )
 
         if not customerId:
-            return api_response("error", "Customer ID is required.", 400, True)
+            return api_response(
+                status="error",
+                message="Customer ID is required.",
+                status_code=400,
+            )
 
         validate_customer = ValidateCustomer()
         if not validate_customer.validate_if_customer_exists(customerId):
-            return api_response("error", "Customer does not exist.", 404, True)
+            return api_response(
+                status="fail",
+                message="Customer not found",
+                status_code=404
+            )
 
         customer_details = validate_customer.get_customer_details(customerId)
 
-        # --- Prepare payload items ---
+
         sale_payload_items = []
 
         for item in items:
@@ -90,6 +131,7 @@ class CreditSaleHelper():
             "name": 1,
             "customerName": customer_details.get("customerName"),
             "customer_tpin": customer_details.get("custom_customer_tpin"),
+            "originalInvoice": originalInvoice,
             "destnCountryCd": destnCountryCd,
             "lpoNumber": lpoNumber,
             "currencyCd": currencyCd,
@@ -98,7 +140,7 @@ class CreditSaleHelper():
             "items": sale_payload_items
         }
 
-        result = NORMAL_SALE_INSTANCE.send_sale_data(sale_payload)
+        result = self.send_sale_data(sale_payload)
         returnedPayload = result.get("payload", {})
 
         if result.get("resultCd") != "000":

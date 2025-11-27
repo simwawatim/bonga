@@ -177,18 +177,18 @@ class CreditNoteSale(ZRAClient, ValidateSale):
         destnCountryCd = base_data.get("destnCountryCd")
         name = base_data.get("name")
         originalInvoice = base_data.get("originalInvoice")
-        originRcptNo = self.get_sale_zra_rcpt_no(originalInvoice)
+        print("ID :", originalInvoice)
+        originRcptNo = ValidateSale.get_sale_zra_rcpt_no(originalInvoice)
+        print("Origin Sale Rcpt No:", originRcptNo)
 
-        if not originRcptNo:
+        if originRcptNo is None or originRcptNo == "":
             return api_response(
                 status="fail",
-                message=f"No receipt number found for Sales Invoice '{name}'",
-                status_code=404,
-                http_status=404
+                message=f"No receipt number found for Sales Invoice '{originalInvoice}'.",
+                status_code=404
             )
-            
 
-
+        print("Validation Passed. Continue processing...")
         logged_in_user = "Admin"
         username = "Admin"
 
@@ -325,7 +325,7 @@ class CreditNoteSale(ZRAClient, ValidateSale):
         }
 
 
-        print("\n[START] Sending sale data...")
+        print("\n[START] Sending sale data..." "Base Data :", base_data)
         self.reset_totals()
         payload = self.build_payload(items, base_data)
         response = self.create_normal_sale_helper(payload)
@@ -472,7 +472,6 @@ class CreditNoteSale(ZRAClient, ValidateSale):
                     status="fail",
                     message=f"ZRA API Error: {response.get('resultMsg', 'Unknown error')}",
                     status_code=400,
-                    http_status=400
                 )
                 return
 
