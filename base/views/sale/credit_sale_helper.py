@@ -4,21 +4,16 @@ from base.views.sale.callers.normal_sale import NormaSale
 from base.utils.response_handler import api_response
 from base.models import Sale, SaleItem, ItemInfo
 
-NORMAL_SALE_INSTANCE = NormaSale()
 
-
-class NormalSaleHelper:
-
-   
-
-    def process_sale(self, sale_data):
-        customerId = sale_data.get("customerId")
-        currencyCd = sale_data.get("currencyCd")
-        exchangeRt = sale_data.get("exchangeRt") or 1
-        createBy = sale_data.get("createBy")
-        lpoNumber = sale_data.get("lpoNumber")
-        destnCountryCd = sale_data.get("destnCountryCd")
-        items = sale_data.get("items", [])
+class CreditSaleHelper():
+    def process_credit_note(self, credit_data):
+        customerId = credit_data.get("customerId")
+        currencyCd = credit_data.get("currencyCd")
+        exchangeRt = credit_data.get("exchangeRt") or 1
+        createBy = credit_data.get("createBy")
+        lpoNumber = credit_data.get("lpoNumber")
+        destnCountryCd = credit_data.get("destnCountryCd")
+        items = credit_data.get("items", [])
 
         if not items or not isinstance(items, list):
             return api_response("error", "At least one sale item is required.", 400, True)
