@@ -142,9 +142,16 @@ class CreditSaleHelper(CreditNoteSale, ValidateSale):
 
         result = self.send_sale_data(sale_payload)
         returnedPayload = result.get("payload", {})
+        response_message = result.get("resultMsg")
+        returnedPayload = result.get("payload", {})
 
         if result.get("resultCd") != "000":
-            return api_response("fail", result.get("resultMsg", "Unknown error from ZRA"), 400)
+            return api_response(
+                status="fail", 
+                message=response_message,
+                status_code=400
+            )
+
         sale = Sale.objects.create(
             org_invc_no=returnedPayload.get("orgInvcNo"),
             cis_invc_no=returnedPayload.get("cisInvcNo"),
@@ -187,4 +194,4 @@ class CreditSaleHelper(CreditNoteSale, ValidateSale):
                 tot_amt=item.get("totAmt"),
             )
 
-        return api_response("success", "All Sales Invoice created successfully", 200)
+        return api_response("success", "Credit Invoice created successfully", 200)

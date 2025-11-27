@@ -187,7 +187,7 @@ class NormaSale(ZRAClient):
             "tpin": self.get_tpin(),
             "bhfId": self.get_branch_code(),
             "orgInvcNo": 0,
-            "cisInvcNo":  str(uuid.uuid4()),
+            "cisInvcNo":  next_invc_no,
             "custTpin": base_data["cust_tpin"],
             "custNm": base_data["cust_name"],
             "salesTyCd": "N",

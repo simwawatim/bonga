@@ -475,11 +475,17 @@ class CreditNoteSale(ZRAClient, ValidateSale):
                 }
 
             else:
-                api_response(
-                    status="fail",
-                    message=f"ZRA API Error: {response.get('resultMsg', 'Unknown error')}",
-                    status_code=400,
-                )
-                return
+                return {
+                        "resultCd": response_status,
+                        "resultMsg": response_message,
 
-        return response
+                }
+
+        response_status = response.get("resultCd")
+        response_message = response.get("resultMsg")
+
+        return {
+            "resultCd": response_status,
+            "resultMsg": response_message,
+
+        }
