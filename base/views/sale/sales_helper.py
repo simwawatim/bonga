@@ -3,7 +3,6 @@ from base.views.sale.validations.item import ValidateItem
 from base.views.sale.callers.normal_sale import NormaSale
 from base.utils.response_handler import api_response
 from base.models import Sale, SaleItem, ItemInfo
-from async_tasks.tasks import sample_task
 
 NORMAL_SALE_INSTANCE = NormaSale()
 
@@ -150,6 +149,4 @@ class NormalSaleHelper:
                 ecm_amt=item.get("ecmAmt", 0.0),
                 tot_amt=item.get("totAmt"),
             )
-
-        sample_task.delay()
-        return api_response("success", "Sales Invoice created successfully", 200)
+        return api_response("success", "All Sales Invoice created successfully", 200)

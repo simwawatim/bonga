@@ -1,6 +1,7 @@
 import random
 # from erpnext.zra_client.generic_api import send_response
 # from erpnext.zra_client.receipt.build import BuildPdf
+from async_tasks.tasks import StockWorker
 from base.models import Sale
 from base.utils.response_handler import api_response
 from zra_client.client import ZRAClient
@@ -439,9 +440,8 @@ class NormaSale(ZRAClient):
                     "modrId": self.to_use_data["regrId"],
                     "stockItemList": update_stock_master_items 
                     }
-
-                # print(update_stock_payload, update_stock_master_items)
-                # self.run_stock_update_in_background(update_stock_payload, update_stock_master_payload, created_by)
+                
+                task = StockWorker.sample_task.delay(update_stock_payload, update_stock_master_items, created_by)
 
                 response_status = response.get("resultCd")
                 if  response_status == "000":
