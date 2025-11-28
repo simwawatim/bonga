@@ -1,7 +1,7 @@
 import random
 # from erpnext.zra_client.generic_api import send_response
 # from erpnext.zra_client.receipt.build import BuildPdf
-from async_tasks.tasks import StockWorker
+from async_tasks.tasks import update_stock_and_stock_master
 from base.models import Sale
 from base.utils.response_handler import api_response
 from zra_client.client import ZRAClient
@@ -183,7 +183,8 @@ class NormaSale(ZRAClient):
         logged_in_user = "Admin"
         username = "Admin"
         last_sale = Sale.objects.order_by('-id').first()
-        next_invc_no = last_sale.id + 1 if last_sale else 1
+        # next_invc_no = last_sale.id + 1 if last_sale else 1
+        next_invc_no = random.randint(100000, 999999)
         payload = {
             "tpin": self.get_tpin(),
             "bhfId": self.get_branch_code(),
@@ -441,7 +442,7 @@ class NormaSale(ZRAClient):
                     "stockItemList": update_stock_master_items 
                     }
                 
-                task = StockWorker.sample_task.delay(update_stock_payload, update_stock_master_items, created_by)
+                update_stock_and_stock_master.delay(update_stock_payload, update_stock_master_payload)
 
                 response_status = response.get("resultCd")
                 if  response_status == "000":

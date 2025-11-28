@@ -1,3 +1,4 @@
+from async_tasks.tasks import update_stock_and_stock_master
 from base.models import Sale
 from base.views.sale.validations.invoice import ValidateSale
 from base.utils.response_handler import api_response
@@ -459,7 +460,7 @@ class CreditNoteSale(ZRAClient, ValidateSale):
                     }
 
                 # print(update_stock_payload, update_stock_master_items)
-                # self.run_stock_update_in_background(update_stock_payload, update_stock_master_payload, created_by)
+                update_stock_and_stock_master.delay(update_stock_payload, update_stock_master_payload)
 
                 response_status = response.get("resultCd")
                 response_message = response.get("resultMsg")
