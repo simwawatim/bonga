@@ -2,7 +2,7 @@ from base.views.stockmaster.stockmasterview import ItemStockMasterListCreateAPIV
 from base.views.supplier.supplier_view import SupplierDetailAPIView, SupplierListCreateAPIView
 from base.views.stock.stock_item_view import StockItemDetailView, StockItemListCreateView
 from base.views.items.item_view import ItemInfoDetailView, ItemInfoListCreateView
-from base.views.sale.sales_views import SaleCreditNoteAPIView, SaleListCreateAPIView, SaleRetrieveAPIView
+from base.views.sale.sales_views import SaleCreditNoteAPIView, SaleDebitNoteAPIView, SaleListCreateAPIView, SaleRetrieveAPIView
 from  base.views.users.views import create_user, list_users
 from base.views.customers import customer_view
 from django.urls import path
@@ -20,6 +20,7 @@ urlpatterns = [
     path('suppliers/', SupplierListCreateAPIView.as_view(), name='supplier-list-create'),
     path('suppliers/<int:pk>/', SupplierDetailAPIView.as_view(), name='supplier-detail'),
     path('sale/credit-note-create/', SaleCreditNoteAPIView.as_view(), name='sale-credit-note-create'),
+    path('sale/debit-note-create/', SaleDebitNoteAPIView.as_view(), name='sale-debit-note-create'),
     path('customers/', customer_view.CustomerInfoListCreateView.as_view(), name='customer-list-create'),
     path('customers/<int:pk>/', customer_view.CustomerInfoDetailView.as_view(), name='customer-detail'),
     path('stock-masters/', ItemStockMasterListCreateAPIView.as_view(), name='stock-master-list-create'),

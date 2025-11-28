@@ -1,5 +1,6 @@
 from base.serializers.sales.sales_serializers import SaleDetailSerializer, SaleSerializer, SaleItemSerializer, SaleSummarySerializer
 from base.utils.response_handler import api_response
+from base.views.sale.debit_sale_helper import DebitSaleHelper
 from base.views.sale.sales_helper import NormalSaleHelper
 from base.views.sale.credit_sale_helper import CreditSaleHelper
 from rest_framework.response import Response
@@ -27,6 +28,15 @@ class SaleCreditNoteAPIView(APIView):
     def post(self, request):
         data = request.data
         result = CreditSaleHelper().process_credit_note(data)
+        if isinstance(result, Response):
+            return result
+        return api_response("success", result)
+    
+
+class SaleDebitNoteAPIView(APIView):
+    def post(self, request):
+        data = request.data
+        result = DebitSaleHelper().process_debit_note(data)
         if isinstance(result, Response):
             return result
         return api_response("success", result)

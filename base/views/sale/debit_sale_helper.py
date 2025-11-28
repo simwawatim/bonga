@@ -1,12 +1,12 @@
+from base.views.sale.callers.debit_note import DebitNoteSale
 from base.views.sale.validations.customer import ValidateCustomer
 from base.views.sale.validations.invoice import ValidateSale
 from base.views.sale.validations.item import ValidateItem
-from base.views.sale.callers.credit_note import CreditNoteSale
 from base.utils.response_handler import api_response
 from base.models import Sale, SaleItem, ItemInfo
 
 
-class DebitSaleHelper(CreditNoteSale, ValidateSale):
+class DebitSaleHelper(DebitNoteSale, ValidateSale):
     def process_debit_note(self, credit_data):
         originalInvoice = credit_data.get("originalInvoice")
         customerId = credit_data.get("customerId")
@@ -194,4 +194,8 @@ class DebitSaleHelper(CreditNoteSale, ValidateSale):
                 tot_amt=item.get("totAmt"),
             )
 
-        return api_response("success", "Debit Invoice created successfully", 200)
+        return api_response(
+            status="success",
+            message="Debit Invoice created successfully",
+            status_code=200
+        )

@@ -49,7 +49,7 @@ def sale_debit_note():
 
     try:
         django_response = requests.post(
-            f"{DJANGO_BASE_URL}/sale/credit-note-create/", json=data, headers=headers
+            f"{DJANGO_BASE_URL}/sale/debit-note-create/", json=data, headers=headers
         )
         return jsonify(safe_json(django_response)), django_response.status_code
     except requests.exceptions.RequestException as e:

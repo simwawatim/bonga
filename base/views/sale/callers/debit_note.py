@@ -471,6 +471,7 @@ class DebitNoteSale(ZRAClient):
                     "resultMsg": response_message,
                     "additionalInfo": additionInfoToBeSaved,
                     "additionInfoToBeSavedItem": additionInfoToBeSavedItem,
+                    "payload": payload,
                     "zraRcptNo": zraRcptNo,
                     "zraQrCodeUrl": zraQrCodeUrl
                 }
@@ -482,6 +483,8 @@ class DebitNoteSale(ZRAClient):
 
                 }
 
+        response_status = response.get("resultCd")
+        response_message = response.get("resultMsg")
         return {
             "resultCd": response_status,
             "resultMsg": response_message,
