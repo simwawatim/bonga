@@ -39,6 +39,7 @@ SHARED_APPS = [
     'django.contrib.contenttypes',
     'rest_framework',
     'customers',
+    'async_tasks',
 
 ]
 
@@ -48,7 +49,6 @@ TENANT_APPS = [
     'django.contrib.messages',  
     'django.contrib.admin', 
     'django.contrib.staticfiles',
-    'async_tasks',
     'base',
 ]
 
