@@ -35,7 +35,7 @@ def sales_credit_note():
         return jsonify({"error": str(e)}), 500
     
 
-@sales_bp("api/sales-debit-note", method=["POST"])
+@sales_bp.route("/api/sales-debit-note/", methods=["POST"])
 def sale_debit_note():
     tenant_id = request.args.get("tenant_id") or request.headers.get("X-Tenant-ID")
     headers = {"X-Tenant-ID": tenant_id} if tenant_id else {}
