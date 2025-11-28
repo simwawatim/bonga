@@ -47,7 +47,8 @@ TENANT_APPS = [
     'django.contrib.sessions', 
     'django.contrib.messages',  
     'django.contrib.admin', 
-    'django.contrib.staticfiles',  
+    'django.contrib.staticfiles',
+    'async_tasks',
     'base',
 ]
 
