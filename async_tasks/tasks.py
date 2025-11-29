@@ -1,6 +1,7 @@
 from celery import shared_task
-from pdf_invoice.build import BuildPdf
+# from pdf_invoice.build import BuildPdf
 from zra_client.client import ZRAClient
+from pdf_invoice.make_invoice_pdf import BuildPdf
 
 ZRA_INSTANCE = ZRAClient()
 

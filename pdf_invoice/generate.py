@@ -197,7 +197,5 @@ class InvoicePDF:
 
         updater = UpdateRecieptUrl()
         updater.update_invoice(invoice_name, public_url, self.tenant_schema)
+        return public_url
 
-        print(f"PDF saved at: {file_path}")
-        print(f"Accessible URL: {public_url}")
-        return file_path

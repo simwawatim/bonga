@@ -63,6 +63,7 @@ class SaleDetailSerializer(serializers.ModelSerializer):
             "tot_amt",
             "rcpt_no",
             "sdc_id",
+            "generated_invoice",
             "qr_code_url",
             "items",
         ]
@@ -88,6 +89,6 @@ class SaleSerializer(serializers.ModelSerializer):
             'id','org_invc_no', 'cis_invc_no', 'cust_tpin',
             'cust_nm', 'sales_ty_cd', 'rcpt_ty_cd', 'pmt_ty_cd', 'sales_stts_cd',
             'cfm_dt', 'sales_dt', 'tot_item_cnt', 'tot_taxbl_amt', 'tot_tax_amt',
-            'tot_amt', 'rcpt_no',
+            'tot_amt', 'rcpt_no', "generated_invoice",
             'qr_code_url', 'items'
         ]

@@ -360,7 +360,7 @@ class NormaSale(ZRAClient):
             get_qrcode_url = response.get("data", {}).get("qrCodeUrl") 
             invoice = []
             invoice.append((
-                base_data["name"],
+                payload.get("cisInvcNo"),
                 self.todays_date(),
                 "TAX INVOICE",
                 get_qrcode_url
