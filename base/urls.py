@@ -6,6 +6,8 @@ from base.views.sale.sales_views import SaleCreditNoteAPIView, SaleDebitNoteAPIV
 from  base.views.users.views import create_user, list_users
 from base.views.customers import customer_view
 from django.urls import path
+from django.conf import settings
+from django.conf.urls.static import static
 
 
 urlpatterns = [
@@ -27,3 +29,6 @@ urlpatterns = [
     path('stock-masters/<int:pk>/', ItemStockMasterRetrieveUpdateDestroyAPIView.as_view(), name='stock-master-detail'),
     
 ]
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+

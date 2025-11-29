@@ -1,13 +1,12 @@
-import random
-# from erpnext.zra_client.generic_api import send_response
 # from erpnext.zra_client.receipt.build import BuildPdf
-from async_tasks.tasks import update_stock_and_stock_master
-from base.models import Sale
+from async_tasks.tasks import generate_invoice_pdf, update_stock_and_stock_master
 from base.utils.response_handler import api_response
-from zra_client.client import ZRAClient
 from decimal import Decimal, ROUND_HALF_UP
+from zra_client.client import ZRAClient
+from base.models import Sale
 from datetime import datetime
 import requests
+import random
 import uuid
 import json
 import os
@@ -183,8 +182,8 @@ class NormaSale(ZRAClient):
         logged_in_user = "Admin"
         username = "Admin"
         last_sale = Sale.objects.order_by('-id').first()
-        # next_invc_no = last_sale.id + 1 if last_sale else 1
-        next_invc_no = random.randint(100000, 999999)
+        next_invc_no = last_sale.id + 1 if last_sale else 1
+        # next_invc_no = random.randint(100000, 999999)
         payload = {
             "tpin": self.get_tpin(),
             "bhfId": self.get_branch_code(),
@@ -378,9 +377,11 @@ class NormaSale(ZRAClient):
             created_by = sell_data.get("owner")
             ocrnDt = datetime.now().strftime("%Y%m%d")
             pdf_items = payload["itemList"]
-            # print(customer_info, company_info, invoice, pdf_items)
-            # pdf_generator = BuildPdf()
-            # pdf_generator.build_invoice(company_info, customer_info, invoice, pdf_items, sdc_data, payload)
+            generate_invoice_pdf.apply_async(
+                args=[company_info, customer_info, invoice, pdf_items, sdc_data, payload],
+                countdown=10  
+            )
+            print("Task scheduled, program continues...")
             if is_stock_updated == 1:
                 print("Updating stock items...")
 

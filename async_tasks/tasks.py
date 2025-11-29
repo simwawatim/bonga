@@ -1,4 +1,5 @@
 from celery import shared_task
+from pdf_invoice.build import BuildPdf
 from zra_client.client import ZRAClient
 
 ZRA_INSTANCE = ZRAClient()
@@ -20,3 +21,9 @@ def update_stock_and_stock_master(update_stock_payload, update_stock_master_item
 
     print("Stock master updated.")
     return "done"
+
+
+@shared_task
+def generate_invoice_pdf(company_info, customer_info, invoice, pdf_items, sdc_data, payload):
+    pdf_generator = BuildPdf()
+    pdf_generator.build_invoice(company_info, customer_info, invoice, pdf_items, sdc_data, payload)

@@ -146,6 +146,11 @@ class Sale(models.Model):
     rcpt_no = models.IntegerField(blank=True, null=True)
     sdc_id = models.CharField(max_length=50, blank=True, null=True)
     qr_code_url = models.URLField(blank=True, null=True)
+    generated_invoice = models.FileField(
+        upload_to='invoices/%Y/%m/%d/', 
+        null=True,
+        blank=True
+    )
 
     def __str__(self):
         return f"{self.cust_nm} - {self.cis_invc_no}"
