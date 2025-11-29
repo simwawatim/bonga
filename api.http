@@ -9,3 +9,26 @@ Content-Type: application/json
   "customerTpin": 123456789,
   "is_active": true
 }
+
+
+### CREATE NORMAL SALE
+http://127.0.0.1:5000/api/sales/
+Content-Type: application/json
+tenant-id: izyane
+
+{
+    "customerId": "1",
+    "currencyCd": "ZMW",
+    "createBy": "1",
+    "items": [
+        {
+            "itemCode": "ChinalBOX0000001",
+            "quantity": 1,
+            "unitPrice": 5000,
+            "vatCd": "A"
+
+        }
+        
+    ]
+
+}

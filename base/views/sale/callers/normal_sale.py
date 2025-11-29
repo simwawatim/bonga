@@ -182,8 +182,8 @@ class NormaSale(ZRAClient):
         logged_in_user = "Admin"
         username = "Admin"
         last_sale = Sale.objects.order_by('-id').first()
-        next_invc_no = last_sale.id + 1 if last_sale else 1
-        # next_invc_no = random.randint(100000, 999999)
+        # next_invc_no = last_sale.id + 1 if last_sale else 1
+        next_invc_no = random.randint(100000, 999999)
         payload = {
             "tpin": self.get_tpin(),
             "bhfId": self.get_branch_code(),
@@ -377,8 +377,9 @@ class NormaSale(ZRAClient):
             created_by = sell_data.get("owner")
             ocrnDt = datetime.now().strftime("%Y%m%d")
             pdf_items = payload["itemList"]
+            tenant_schema = "izyane" 
             generate_invoice_pdf.apply_async(
-                args=[company_info, customer_info, invoice, pdf_items, sdc_data, payload],
+                args=[company_info, customer_info, invoice, pdf_items, sdc_data, payload, tenant_schema],
                 countdown=10  
             )
             print("Task scheduled, program continues...")

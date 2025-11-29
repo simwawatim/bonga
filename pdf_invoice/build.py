@@ -1,8 +1,7 @@
 from pdf_invoice.generate import InvoicePDF
-from datetime import datetime
 
 class BuildPdf:
-    def build_invoice(self, company_info, customer_info, invoice, items, sdc_data, payload):
+    def build_invoice(self, company_info, customer_info, invoice, items, sdc_data, payload, tenant_schema):
         company_name, company_phone, company_email, company_tpin = company_info[0]
         cust_tpin, cust_name = customer_info[0]
         invoice_number, invoice_date, invoice_type, get_qrcode_url = invoice[0]
@@ -73,7 +72,6 @@ class BuildPdf:
             "internal_data": {}
         }
 
-        builder = InvoicePDF(invoice_data)
-        result = builder.build_pdf(invoice_number)
-
+        builder = InvoicePDF(invoice_data, tenant_schema)
+        result = builder.build_pdf(invoice_number, site_folder=None, site_name="media")
         print("PDF saved with file ID:", result)

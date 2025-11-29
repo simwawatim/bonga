@@ -24,6 +24,7 @@ def update_stock_and_stock_master(update_stock_payload, update_stock_master_item
 
 
 @shared_task
-def generate_invoice_pdf(company_info, customer_info, invoice, pdf_items, sdc_data, payload):
-    pdf_generator = BuildPdf()
-    pdf_generator.build_invoice(company_info, customer_info, invoice, pdf_items, sdc_data, payload)
+def generate_invoice_pdf(company_info, customer_info, invoice, pdf_items, sdc_data, payload, tenant_schema):
+    builder = BuildPdf()
+    builder.build_invoice(company_info, customer_info, invoice, pdf_items, sdc_data, payload, tenant_schema)
+    return "PDF generated"
