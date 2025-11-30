@@ -174,3 +174,13 @@ class SaleItem(models.Model):
 
     def __str__(self):
         return f"{self.item.name} ({self.sale.cis_invc_no})"
+
+
+class ItemStockMaster(models.Model):
+    item = models.ForeignKey(ItemInfo, on_delete=models.CASCADE, related_name='stock_masters')
+    available_qty = models.DecimalField(max_digits=13, decimal_places=2, default=0)
+    last_updated = models.DateTimeField(auto_now=True)
+    updated_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.item.code} - {self.available_qty}"

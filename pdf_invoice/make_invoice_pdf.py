@@ -169,6 +169,17 @@ class InvoicePDF:
             x = (width - size)/2
             y = y_start - gap
             renderPDF.draw(d, c, x, y)
+    
+    def add_watermark(self, c, width, height):
+        try:
+            logo = os.path.join(os.path.dirname(__file__), "logo.png")
+            wm_width, wm_height = width*0.9, height*0.9
+            x, y = (width - wm_width)/2, (height - wm_height)/2
+            c.saveState()
+            c.setFillAlpha(0.05)
+            c.drawImage(logo, x, y, width=wm_width, height=wm_height, preserveAspectRatio=True, mask='auto')
+            c.restoreState()
+        except: pass
 
     def draw_footer(self, c, width):
         c.setFont("Helvetica-Bold", 9)
@@ -180,7 +191,7 @@ class InvoicePDF:
         buffer = BytesIO()
         c = canvas.Canvas(buffer, pagesize=A4)
         width, height = A4
-
+        self.add_watermark(c, width, height)
         hero_y = self.draw_nav(c, width, height)
         hero_y = self.draw_hero(c, width, hero_y)
         hero_y = self.draw_invoice_title(c, width, hero_y)
