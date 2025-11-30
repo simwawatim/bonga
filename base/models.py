@@ -49,30 +49,6 @@ class ItemInfo(models.Model):
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
-    def save(self, *args, **kwargs):
-        if not self.code:
-            item_origin = self.itemOrigin or "ZM"
-            pkg_unit = self.pkgUnitCd or "NT"
-            item_type = self.itemTypeCd[-1] if self.itemTypeCd else "0"
-
-            last_item = ItemInfo.objects.filter(
-                itemOrigin=item_origin,
-                itemTypeCd=self.itemTypeCd,
-                pkgUnitCd=pkg_unit
-            ).order_by('id').last()
-
-            if last_item and last_item.code:
-                try:
-                    last_number = int(last_item.code[-7:])
-                except ValueError:
-                    last_number = 0
-                new_number = str(last_number + 1).zfill(7)
-            else:
-                new_number = "0000001"
-
-            self.code = f"{item_origin}{item_type}{pkg_unit}{new_number}"
-
-        super().save(*args, **kwargs)
     def __str__(self):
         return f"{self.name} ({self.code})"
     

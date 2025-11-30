@@ -3,13 +3,11 @@ from base.views.sale.validations.item import ValidateItem
 from base.views.sale.callers.normal_sale import NormaSale
 from base.utils.response_handler import api_response
 from base.models import Sale, SaleItem, ItemInfo
-
+from helper.stock_check import CheckStock
 NORMAL_SALE_INSTANCE = NormaSale()
 
 
 class NormalSaleHelper:
-
-   
 
     def process_sale(self, sale_data):
         customerId = sale_data.get("customerId")
@@ -52,6 +50,10 @@ class NormalSaleHelper:
             vatCd = item.get("vatCd")
             iplCd = item.get("iplCd")
             tlCd = item.get("tlCd")
+
+            check_stock = CheckStock.check_stock_if_exist(itemCode, quantity)
+            if check_stock.get("status") == "fail" or check_stock.get("status_code") != 200:
+                return check_stock
 
             itemValidate = ValidateItem()
             if not itemValidate.validate_if_item_exists(itemCode):

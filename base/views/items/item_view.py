@@ -17,40 +17,57 @@ class ItemInfoListCreateView(APIView):
 
 
     def post(self, request):
+        data = request.data
+
         try:
-            serializer = ItemInfoSerializer(data=request.data)
+            serializer = ItemInfoSerializer(data=data)
             if not serializer.is_valid():
                 first_field, messages = next(iter(serializer.errors.items()))
                 return api_response(
-                    "error",
-                    f"{first_field}: {messages[0]}",
-                    status_code=400,
-                    is_error=True
+                    status="fail",
+                    message=f"{first_field}: {messages[0]}",
+                    data={},
+                    status_code=status.HTTP_400_BAD_REQUEST
                 )
+
 
             external_client = CreateItem()
-            external_response = external_client.prepare_save_item_payload()
-            data = external_response.json()
-            
-            if data.get("resultCd") != "000":
-                return Response(
-                    {
-                        "error": "External item creation failed",
-                        "message": external_response,
-                    },
-                    status=status.HTTP_400_BAD_REQUEST
+            external_response, generated_code = external_client.prepare_save_item_payload(data)
+
+    
+            if hasattr(external_response, "status_code"):
+                if external_response.status_code != 200:
+                    return external_response
+
+            if hasattr(external_response, "json"):
+                external_data = external_response.json()
+            else:
+                external_data = external_response
+
+            if external_data.get("resultCd") != "000":
+                return api_response(
+                    status="fail",
+                    message="External item creation failed",
+                    data=external_data,
+                    status_code=status.HTTP_400_BAD_REQUEST
                 )
 
-            serializer.save(created_by=request.user if request.user.is_authenticated else None)
+    
+            item_instance = serializer.save(code=generated_code)
 
-            return api_response("success", serializer.data, status_code=201)
+            return api_response(
+                status="success",
+                message="Item created successfully",
+                data=ItemInfoSerializer(item_instance).data,
+                status_code=status.HTTP_201_CREATED
+            )
 
         except Exception as e:
             return api_response(
-                "error",
-                f"Internal server error: {str(e)}",
-                status_code=500,
-                is_error=True
+                status="error",
+                message=f"Internal server error: {str(e)}",
+                data={},
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
 class ItemInfoDetailView(APIView):
