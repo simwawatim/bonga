@@ -1,14 +1,18 @@
-from base.views.stockmaster.stockmasterview import ItemStockMasterListCreateAPIView, ItemStockMasterRetrieveUpdateDestroyAPIView
+from base.views.sale.sales_views import SaleCreditNoteAPIView, SaleDebitNoteAPIView, SaleListCreateAPIView, SaleRetrieveAPIView
+from base.views.purchase.purchase_views import PurchaseDetailAPIView, PurchaseListCreateAPIView
 from base.views.supplier.supplier_view import SupplierDetailAPIView, SupplierListCreateAPIView
 from base.views.stock.stock_item_view import StockItemDetailView, StockItemListCreateView
 from base.views.items.item_view import ItemInfoDetailView, ItemInfoListCreateView
-from base.views.sale.sales_views import SaleCreditNoteAPIView, SaleDebitNoteAPIView, SaleListCreateAPIView, SaleRetrieveAPIView
 from base.views.stock_master.stock_master_view import StockMasterByItemCode
 from  base.views.users.views import create_user, list_users
 from base.views.customers import customer_view
-from django.urls import path
-from django.conf import settings
 from django.conf.urls.static import static
+from django.conf import settings
+from django.urls import path
+
+
+
+
 
 
 urlpatterns = [
@@ -31,6 +35,16 @@ urlpatterns = [
         StockMasterByItemCode.as_view(),
         name='stock-master-by-item-code'
     ),
+    path(
+        'purchases/', 
+        PurchaseListCreateAPIView.as_view(), 
+        name='purchase-list-create'
+        ),
+    path(
+        'purchases/<int:pk>/', 
+        PurchaseDetailAPIView.as_view(), 
+        name='purchase-detail'
+        ),
     
 ]
 if settings.DEBUG:
