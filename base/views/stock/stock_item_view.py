@@ -6,7 +6,7 @@ from django.db.models import ProtectedError
 from base.models import StockItem, ItemInfo
 from rest_framework.views import APIView
 from rest_framework import status
-
+from helper.stock_check import CheckStock
 class StockItemListCreateView(APIView):
     def get(self, request):
         stock_items = StockItem.objects.select_related('item', 'created_by').all()
@@ -14,6 +14,7 @@ class StockItemListCreateView(APIView):
         return api_response("success", serializer.data, status_code=status.HTTP_200_OK)
 
     def post(self, request):
+        data = request.data
         try:
             item = ItemInfo.objects.filter(pk=request.data.get("item")).first()
             if not item:
@@ -25,6 +26,8 @@ class StockItemListCreateView(APIView):
                 )
 
             serializer = StockItemSerializer(data=request.data)
+            itemCd = item.code
+            qtyToBeIncrease = data.get("qty")
             if not serializer.is_valid():
                 field, messages = next(iter(serializer.errors.items()))
                 return api_response(
@@ -35,6 +38,7 @@ class StockItemListCreateView(APIView):
                 )
 
             serializer.save(created_by=request.user if request.user.is_authenticated else None)
+            CheckStock.increaseStock(itemCd, qtyToBeIncrease)
             return api_response("success", serializer.data, status_code=201)
 
         except Exception as e:
