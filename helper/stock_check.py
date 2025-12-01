@@ -7,7 +7,6 @@ class CheckStock:
     @staticmethod
     def check_stock_if_exist(itemCd, requestQty):
 
-
         if not itemCd:
             return api_response(
                 status="fail",
