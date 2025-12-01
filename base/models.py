@@ -198,7 +198,6 @@ class Purchase(models.Model):
 
 class PurchaseItem(models.Model):
     purchase = models.ForeignKey(Purchase, on_delete=models.CASCADE, related_name="items")
-
     itemSeq = models.IntegerField()
     itemCd = models.CharField(max_length=50)
     itemClsCd = models.CharField(max_length=50)
@@ -222,8 +221,6 @@ class PurchaseItem(models.Model):
 
     taxAmt = models.DecimalField(max_digits=18, decimal_places=2)
     totAmt = models.DecimalField(max_digits=18, decimal_places=2)
-
-    # Nullable fields
     iplCatCd = models.CharField(max_length=50, null=True, blank=True)
     tlCatCd = models.CharField(max_length=50, null=True, blank=True)
     exciseCatCd = models.CharField(max_length=50, null=True, blank=True)
