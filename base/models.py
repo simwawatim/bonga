@@ -194,3 +194,47 @@ class Purchase(models.Model):
 
     def __str__(self):
         return f"Purchase {self.cisInvcNo}"
+
+
+class PurchaseItem(models.Model):
+    purchase = models.ForeignKey(Purchase, on_delete=models.CASCADE, related_name="items")
+
+    itemSeq = models.IntegerField()
+    itemCd = models.CharField(max_length=50)
+    itemClsCd = models.CharField(max_length=50)
+    itemNm = models.CharField(max_length=255)
+
+    bcd = models.CharField(max_length=100, null=True, blank=True)
+    pkgUnitCd = models.CharField(max_length=10)
+    pkg = models.DecimalField(max_digits=18, decimal_places=2)
+    qtyUnitCd = models.CharField(max_length=10)
+    qty = models.DecimalField(max_digits=18, decimal_places=2)
+
+    prc = models.DecimalField(max_digits=18, decimal_places=2)
+    splyAmt = models.DecimalField(max_digits=18, decimal_places=2)
+    dcRt = models.DecimalField(max_digits=5, decimal_places=2)
+    dcAmt = models.DecimalField(max_digits=18, decimal_places=2)
+
+    taxTyCd = models.CharField(max_length=5)
+
+    taxblAmt = models.DecimalField(max_digits=18, decimal_places=2)
+    vatCatCd = models.CharField(max_length=5)
+
+    taxAmt = models.DecimalField(max_digits=18, decimal_places=2)
+    totAmt = models.DecimalField(max_digits=18, decimal_places=2)
+
+    # Nullable fields
+    iplCatCd = models.CharField(max_length=50, null=True, blank=True)
+    tlCatCd = models.CharField(max_length=50, null=True, blank=True)
+    exciseCatCd = models.CharField(max_length=50, null=True, blank=True)
+
+    iplTaxblAmt = models.DecimalField(max_digits=18, decimal_places=2, null=True, blank=True)
+    tlTaxblAmt = models.DecimalField(max_digits=18, decimal_places=2, null=True, blank=True)
+    exciseTaxblAmt = models.DecimalField(max_digits=18, decimal_places=2, null=True, blank=True)
+
+    iplAmt = models.DecimalField(max_digits=18, decimal_places=2, null=True, blank=True)
+    tlAmt = models.DecimalField(max_digits=18, decimal_places=2, null=True, blank=True)
+    exciseTxAmt = models.DecimalField(max_digits=18, decimal_places=2, null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.itemNm}"
