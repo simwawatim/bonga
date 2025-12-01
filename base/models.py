@@ -160,3 +160,37 @@ class ItemStockMaster(models.Model):
 
     def __str__(self):
         return f"{self.item.code} - {self.available_qty}"
+
+class Purchase(models.Model):
+    cisInvcNo = models.CharField(max_length=50)
+    orgInvcNo = models.IntegerField()
+    
+    spplrTpin = models.CharField(max_length=20)
+    spplrBhfId = models.CharField(max_length=10)
+    spplrNm = models.CharField(max_length=255)
+    spplrInvcNo = models.CharField(max_length=50)
+
+    regTyCd = models.CharField(max_length=5)
+    pchsTyCd = models.CharField(max_length=5)
+    rcptTyCd = models.CharField(max_length=5)
+    pmtTyCd = models.CharField(max_length=5)
+    pchsSttsCd = models.CharField(max_length=5)
+
+    cfmDt = models.CharField(max_length=20)
+    pchsDt = models.CharField(max_length=20)
+    cnclReqDt = models.CharField(max_length=20, blank=True)
+    cnclDt = models.CharField(max_length=20, blank=True)
+
+    totItemCnt = models.IntegerField()
+    totTaxblAmt = models.DecimalField(max_digits=18, decimal_places=4)
+    totTaxAmt = models.DecimalField(max_digits=18, decimal_places=4)
+    totAmt = models.DecimalField(max_digits=18, decimal_places=2)
+
+    remark = models.TextField(blank=True)
+    regrNm = models.CharField(max_length=255)
+    regrId = models.CharField(max_length=255)
+    modrNm = models.CharField(max_length=255)
+    modrId = models.CharField(max_length=255)
+
+    def __str__(self):
+        return f"Purchase {self.cisInvcNo}"
