@@ -1,9 +1,10 @@
 from base.views.sale.validations.customer import ValidateCustomer
+from base.views.sale.callers.credit_note import CreditNoteSale
 from base.views.sale.validations.invoice import ValidateSale
 from base.views.sale.validations.item import ValidateItem
-from base.views.sale.callers.credit_note import CreditNoteSale
 from base.utils.response_handler import api_response
 from base.models import Sale, SaleItem, ItemInfo
+from helper.stock_check import CheckStock
 
 
 class CreditSaleHelper(CreditNoteSale, ValidateSale):
@@ -193,5 +194,7 @@ class CreditSaleHelper(CreditNoteSale, ValidateSale):
                 ecm_amt=item.get("ecmAmt", 0.0),
                 tot_amt=item.get("totAmt"),
             )
+            
+            CheckStock.increaseStock(item.get('itemCd'), item.get("qty"))
 
         return api_response("success", "Credit Invoice created successfully", 200)

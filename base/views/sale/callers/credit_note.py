@@ -1,10 +1,10 @@
-from async_tasks.tasks import update_stock_and_stock_master
-from base.models import Sale
+from async_tasks.tasks import generate_invoice_pdf, update_stock_and_stock_master
 from base.views.sale.validations.invoice import ValidateSale
 from base.utils.response_handler import api_response
-from zra_client.client import ZRAClient
 from decimal import Decimal, ROUND_HALF_UP
+from zra_client.client import ZRAClient
 from datetime import datetime
+from base.models import Sale
 import random
 import requests
 import uuid
@@ -377,7 +377,7 @@ class CreditNoteSale(ZRAClient, ValidateSale):
             get_qrcode_url = response.get("data", {}).get("qrCodeUrl") 
             invoice = []
             invoice.append((
-                base_data["name"],
+                payload.get("cisInvcNo"),
                 self.todays_date(),
                 "CREDIT NOTE",
                 get_qrcode_url
@@ -393,8 +393,11 @@ class CreditNoteSale(ZRAClient, ValidateSale):
             pdf_items = payload["itemList"]
             print(customer_info, company_info, invoice, pdf_items)
             print(customer_info, company_info, "Invoice Info :", invoice, pdf_items)
-            # pdf_generator = BuildPdf()
-            # pdf_generator.build_invoice(company_info, customer_info, invoice, pdf_items, sdc_data, payload)
+            tenant_schema = "izyane" 
+            generate_invoice_pdf.apply_async(
+                args=[company_info, customer_info, invoice, pdf_items, sdc_data, payload, tenant_schema],
+                countdown=10  
+            )
             created_by = sell_data.get("owner")
             ocrnDt = datetime.now().strftime("%Y%m%d")
             print(self.to_use_data)
