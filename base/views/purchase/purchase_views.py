@@ -7,7 +7,6 @@ from base.models import Purchase
 
 
 class PurchaseListCreateAPIView(APIView):
-
     def get(self, request):
         purchases = Purchase.objects.all()
         serializer = PurchaseSerializer(purchases, many=True)
