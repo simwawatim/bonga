@@ -51,9 +51,9 @@ class NormalSaleHelper:
             iplCd = item.get("iplCd")
             tlCd = item.get("tlCd")
 
-            check_stock = CheckStock.check_stock_if_exist(itemCode, quantity)
-            if check_stock.get("status") == "fail" or check_stock.get("status_code") != 200:
-                return check_stock
+            is_ok, stock_error = CheckStock.check_stock_if_exist(itemCode, quantity)
+            if not is_ok:
+                return stock_error
 
             itemValidate = ValidateItem()
             if not itemValidate.validate_if_item_exists(itemCode):
@@ -108,8 +108,12 @@ class NormalSaleHelper:
         result = NORMAL_SALE_INSTANCE.send_sale_data(sale_payload)
         returnedPayload = result.get("payload", {})
 
+
+
         if result.get("resultCd") != "000":
             return api_response("fail", result.get("resultMsg", "Unknown error from ZRA"), 400)
+        
+        
         sale = Sale.objects.create(
             org_invc_no=returnedPayload.get("orgInvcNo"),
             cis_invc_no=returnedPayload.get("cisInvcNo"),
@@ -151,4 +155,6 @@ class NormalSaleHelper:
                 ecm_amt=item.get("ecmAmt", 0.0),
                 tot_amt=item.get("totAmt"),
             )
+            CheckStock.reduceStock(item.get('itemCd'), item.get("qty"))
+
         return api_response("success", "All Sales Invoice created successfully", 200)
