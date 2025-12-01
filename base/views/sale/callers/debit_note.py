@@ -1,4 +1,4 @@
-from async_tasks.tasks import update_stock_and_stock_master
+from async_tasks.tasks import generate_invoice_pdf, update_stock_and_stock_master
 from base.views.sale.validations.invoice import ValidateSale
 from base.utils.response_handler import api_response
 from decimal import Decimal, ROUND_HALF_UP
@@ -381,7 +381,7 @@ class DebitNoteSale(ZRAClient):
             get_qrcode_url = response.get("data", {}).get("qrCodeUrl") 
             invoice = []
             invoice.append((
-                payload["cisInvcNo"],
+                payload.get("cisInvcNo"),
                 self.todays_date(),
                 "DEBIT NOTE",
                 get_qrcode_url
@@ -395,8 +395,11 @@ class DebitNoteSale(ZRAClient):
 
             pdf_items = payload["itemList"]
             print(customer_info, company_info, invoice, pdf_items)
-            # pdf_generator = BuildPdf()
-            # pdf_generator.build_invoice(company_info, customer_info, invoice, pdf_items, sdc_data, payload)
+            tenant_schema = "izyane" 
+            generate_invoice_pdf.apply_async(
+                args=[company_info, customer_info, invoice, pdf_items, sdc_data, payload, tenant_schema],
+                countdown=10  
+            )
             created_by = sell_data.get("owner")
             ocrnDt = datetime.now().strftime("%Y%m%d")
             print(self.to_use_data)

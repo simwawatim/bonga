@@ -4,6 +4,7 @@ from base.views.sale.validations.invoice import ValidateSale
 from base.views.sale.validations.item import ValidateItem
 from base.utils.response_handler import api_response
 from base.models import Sale, SaleItem, ItemInfo
+from helper.stock_check import CheckStock
 
 
 class DebitSaleHelper(DebitNoteSale, ValidateSale):
@@ -193,6 +194,7 @@ class DebitSaleHelper(DebitNoteSale, ValidateSale):
                 ecm_amt=item.get("ecmAmt", 0.0),
                 tot_amt=item.get("totAmt"),
             )
+            CheckStock.reduceStock(item.get('itemCd'), item.get("qty"))
 
         return api_response(
             status="success",
