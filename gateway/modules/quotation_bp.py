@@ -31,7 +31,7 @@ def quotation_create():
 
     try:
         django_response = requests.post(
-            f"{DJANGO_BASE_URL}/quotation/create/",
+            f"{DJANGO_BASE_URL}/quotations/create/",
             json=data,
             headers=headers
         )
@@ -53,7 +53,7 @@ def quotation_list():
 
     try:
         django_response = requests.get(
-            f"{DJANGO_BASE_URL}/quotation/list/",
+            f"{DJANGO_BASE_URL}/quotations/",
             params=dict(request.args),
             headers=headers
         )
@@ -75,7 +75,7 @@ def quotation_detail(quotation_id):
 
     try:
         django_response = requests.get(
-            f"{DJANGO_BASE_URL}/quotation/{quotation_id}/",
+            f"{DJANGO_BASE_URL}/quotations/{quotation_id}/",
             headers=headers
         )
         return jsonify(safe_json(django_response)), django_response.status_code

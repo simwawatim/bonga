@@ -1,4 +1,5 @@
 from base.views.sale.sales_views import SaleCreditNoteAPIView, SaleDebitNoteAPIView, SaleListCreateAPIView, SaleRetrieveAPIView
+from base.views.quotation.quotation_views import QuotationCreateAPIView, QuotationDetailAPIView, QuotationListAPIView
 from base.views.purchase.purchase_views import PurchaseDetailAPIView, PurchaseListCreateAPIView
 from base.views.supplier.supplier_view import SupplierDetailAPIView, SupplierListCreateAPIView
 from base.views.stock.stock_item_view import StockItemDetailView, StockItemListCreateView
@@ -10,7 +11,7 @@ from django.conf.urls.static import static
 from django.conf import settings
 from django.urls import path
 
-from main.base.views.quotation.quotation_views import QuotationCreateAPIView, QuotationDetailAPIView, QuotationListAPIView
+
 
 
 
