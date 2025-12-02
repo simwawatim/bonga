@@ -10,6 +10,8 @@ from django.conf.urls.static import static
 from django.conf import settings
 from django.urls import path
 
+from main.base.views.quotation.quotation_views import QuotationCreateAPIView, QuotationDetailAPIView, QuotationListAPIView
+
 
 
 
@@ -44,6 +46,20 @@ urlpatterns = [
         'purchases/<int:pk>/', 
         PurchaseDetailAPIView.as_view(), 
         name='purchase-detail'
+        ),
+
+    path(
+        "quotations/create/", 
+         QuotationCreateAPIView.as_view()
+         ),
+    path(
+        "quotations/", 
+        QuotationListAPIView.as_view()
+        ),
+    path(
+        "quotations/<int:pk>/", 
+        QuotationDetailAPIView.as_view()
+        
         ),
     
 ]

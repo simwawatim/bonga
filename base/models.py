@@ -235,3 +235,73 @@ class PurchaseItem(models.Model):
 
     def __str__(self):
         return f"{self.itemNm}"
+
+
+class Quotation(models.Model):
+    quotation_no = models.CharField(max_length=50, unique=True)
+    customer = models.ForeignKey(
+        CustomerInfo,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="quotations"
+    )
+    customer_name = models.CharField(max_length=255)
+    customer_tpin = models.CharField(max_length=50, blank=True, null=True)
+
+    quotation_date = models.DateTimeField(default=timezone.now)
+    expiry_date = models.DateTimeField(null=True, blank=True)
+    total_items = models.IntegerField(default=0)
+    total_taxable = models.DecimalField(max_digits=18, decimal_places=2, default=0)
+    total_tax = models.DecimalField(max_digits=18, decimal_places=2, default=0)
+    total_amount = models.DecimalField(max_digits=18, decimal_places=2, default=0)
+
+    status = models.CharField(
+        max_length=20,
+        choices=[
+            ("DRAFT", "Draft"),
+            ("SENT", "Sent"),
+            ("APPROVED", "Approved"),
+            ("REJECTED", "Rejected"),
+            ("CONVERTED", "Converted to Sale"),
+        ],
+        default="DRAFT"
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="quotation_created"
+    )
+    updated_at = models.DateTimeField(auto_now=True)
+    updated_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="quotation_updated"
+    )
+
+    def __str__(self):
+        return f"Quotation {self.quotation_no} - {self.customer_name}"
+
+
+class QuotationItem(models.Model):
+    quotation = models.ForeignKey(
+        Quotation,
+        on_delete=models.CASCADE,
+        related_name="items"
+    )
+    item = models.ForeignKey(ItemInfo, on_delete=models.PROTECT)
+
+    qty = models.DecimalField(max_digits=10, decimal_places=2)
+    price = models.DecimalField(max_digits=18, decimal_places=2)
+    supply_amount = models.DecimalField(max_digits=18, decimal_places=2)
+    tax_amount = models.DecimalField(max_digits=18, decimal_places=2)
+    total_amount = models.DecimalField(max_digits=18, decimal_places=2)
+
+    vat_category = models.CharField(max_length=10, blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.item.name} - Qty: {self.qty}"
