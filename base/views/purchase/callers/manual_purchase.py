@@ -1,4 +1,5 @@
 import json
+from async_tasks.tasks import update_stock_and_stock_master
 from helper.supplier import SupplierHelper
 from base.utils.response_handler import api_response
 
@@ -228,7 +229,7 @@ class PurchaseInvoiceCreation(ZRAClient):
                     "modrId": self.to_use_data["regrId"],
                     "stockItemList": update_stock_master_items
                 }
-
+                update_stock_and_stock_master.delay(update_stock_payload, update_stock_master_payload)
                 response_status = response.get("resultCd")
                 response_message = response.get("resultMsg")
 
@@ -239,7 +240,8 @@ class PurchaseInvoiceCreation(ZRAClient):
                         "message": "Purchase invoice created successfully",
                         "data": {
                             "resultCd": response_status,
-                            "resultMsg": response_message
+                            "resultMsg": response_message,
+                            "payload": payload
                         }
                     }
                 else:
