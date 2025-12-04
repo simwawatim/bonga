@@ -1,12 +1,39 @@
-from zra_client.client import ZRAClient
+import json
+from helper.supplier import SupplierHelper
 from base.utils.response_handler import api_response
+
+from zra_client.client import ZRAClient
 from datetime import datetime
 
+SUPPLIER_HELPER_INSTANCE  = SupplierHelper()
 class PurchaseInvoiceCreation(ZRAClient):
 
     def create_manual_purchase_invoice(self, purchase_data):
             name = purchase_data.get("name")
             supplier_name = purchase_data.get("spplrNm") or purchase_data.get("supplier_name")
+            supplierId = purchase_data.get("supplierId")
+
+            if not supplierId or not str(supplierId).isdigit():
+                return api_response(
+                    status="fail",
+                    message="Supplier ID must be a valid number.",
+                    status_code=400  
+                )
+
+            if not SUPPLIER_HELPER_INSTANCE.supplierExists(supplierId):
+                return api_response(
+                    status="fail",
+                    message=f"Supplier with ID {supplierId} does not exist.",
+                    status_code=404
+                )
+            
+            tpin, name = SUPPLIER_HELPER_INSTANCE.getSupplierData(supplierId)
+            if not tpin or not name:
+                return api_response(
+                    status="fail",
+                    message=f"Supplier with ID {supplierId} does not exist.",
+                    status_code=404
+                )
 
             modified_by = purchase_data.get("modified_by")
             cfmDt = datetime.now().strftime("%Y%m%d%H%M%S")
@@ -45,7 +72,7 @@ class PurchaseInvoiceCreation(ZRAClient):
             for item in items:
                 itemCode = item.get("itemCode")
                 qty = item.get("qty")
-                price = item.get("base_net_rate", 0)
+                price = item.get("price")
                 item_total = round(qty * price, 2)
                 itemName = item.get("itemName")
                 itemClassCode = item.get("itemClassCode")
@@ -108,14 +135,12 @@ class PurchaseInvoiceCreation(ZRAClient):
 
                 item_seq += 1
 
-            logged_in_user = self.get_logged_in_details(modified_by)
-            username = logged_in_user['username']
             payload = {
                 "tpin": self.get_tpin(),
                 "bhfId": self.get_branch_code(),
                 "cisInvcNo": name,
-                "spplrTpin": supplier_tpin,
-                "spplrNm": supplier_name,
+                "spplrTpin": tpin,
+                "spplrNm": name,
                 "spplrInvcNo": purchase_invoice_no,
                 "regTyCd": "M",
                 "pchsTyCd": "N",
@@ -138,63 +163,70 @@ class PurchaseInvoiceCreation(ZRAClient):
                 "itemList": formatted_items
             }
 
+            print(json.dumps(payload, indent=2))
 
             response = self.create_purchase_zra_client(payload)
-            update_stock_items = []
-            update_stock_master_items = []
+            response = response.json()
+            if response.get("resultCd") == "000":
+                update_stock_items = []
+                update_stock_master_items = []
 
-            for item in self.to_use_data.get("itemList", []):
-                update_stock_items.append({
-                    "itemSeq": item.get("itemSeq"),
-                    "itemCd": item.get("itemCd"),
-                    "itemClsCd": item.get("itemClsCd"),
-                    "itemNm": item.get("itemNm"),
-                    "pkgUnitCd": item.get("pkgUnitCd"),
-                    "qtyUnitCd": item.get("qtyUnitCd"),
-                    "qty": item.get("qty"),
-                    "prc": item.get("prc"),
-                    "splyAmt": item.get("splyAmt"),
-                    "taxblAmt": item.get("taxblAmt"),
-                    "vatCatCd": item.get("vatCatCd"),
-                    "taxAmt": item.get("taxAmt"),
-                    "totAmt": item.get("totAmt"),
-                    "pkg": item.get("pkg", 1),
-                    "totDcAmt": item.get("dcAmt", 0),
-                })
+                for item in self.to_use_data.get("itemList", []):
+                    update_stock_items.append({
+                        "itemSeq": item.get("itemSeq"),
+                        "itemCd": item.get("itemCd"),
+                        "itemClsCd": item.get("itemClsCd"),
+                        "itemNm": item.get("itemNm"),
+                        "pkgUnitCd": item.get("pkgUnitCd"),
+                        "qtyUnitCd": item.get("qtyUnitCd"),
+                        "qty": item.get("qty"),
+                        "prc": item.get("prc"),
+                        "splyAmt": item.get("splyAmt"),
+                        "taxblAmt": item.get("taxblAmt"),
+                        "vatCatCd": item.get("vatCatCd"),
+                        "taxAmt": item.get("taxAmt"),
+                        "totAmt": item.get("totAmt"),
+                        "pkg": item.get("pkg", 1),
+                        "totDcAmt": item.get("dcAmt", 0),
+                    })
 
-                update_stock_master_items.append({
-                    "itemCd": item.get("itemCd"),
-                    "rsdQty": 12
-                })
+                    update_stock_master_items.append({
+                        "itemCd": item.get("itemCd"),
+                        "rsdQty": 12
+                    })
 
-            ocrnDt = datetime.now().strftime("%Y%m%d")
-            update_stock_payload = {
-                "tpin": self.get_tpin(),
-                "bhfId": self.get_branch_code(),
-                "sarNo": 1,
-                "orgSarNo": 0,
-                "regTyCd": "M",
-                "sarTyCd": "02",
-                "ocrnDt": ocrnDt,
-                "totItemCnt": self.to_use_data['totItemCnt'],
-                "totTaxblAmt": self.to_use_data['totTaxblAmt'],
-                "totTaxAmt": self.to_use_data['totTaxAmt'],
-                "totAmt": self.to_use_data['totAmt'],
-                "regrId": self.to_use_data["regrId"],
-                "regrNm": self.to_use_data["regrId"],
-                "modrNm": self.to_use_data["regrId"],
-                "modrId": self.to_use_data["regrId"],
-                "itemList": update_stock_items
-            }
+                ocrnDt = datetime.now().strftime("%Y%m%d")
+                update_stock_payload = {
+                    "tpin": self.get_tpin(),
+                    "bhfId": self.get_branch_code(),
+                    "sarNo": 1,
+                    "orgSarNo": 0,
+                    "regTyCd": "M",
+                    "sarTyCd": "02",
+                    "ocrnDt": ocrnDt,
+                    "totItemCnt": self.to_use_data['totItemCnt'],
+                    "totTaxblAmt": self.to_use_data['totTaxblAmt'],
+                    "totTaxAmt": self.to_use_data['totTaxAmt'],
+                    "totAmt": self.to_use_data['totAmt'],
+                    "regrId": self.to_use_data["regrId"],
+                    "regrNm": self.to_use_data["regrId"],
+                    "modrNm": self.to_use_data["regrId"],
+                    "modrId": self.to_use_data["regrId"],
+                    "itemList": update_stock_items
+                }
 
-            update_stock_master_payload = {
-                "tpin": self.get_tpin(),
-                "bhfId": self.get_branch_code(),
-                "regrId": self.to_use_data["regrId"],
-                "regrNm": self.to_use_data["regrId"],
-                "modrNm": self.to_use_data["regrId"],
-                "modrId": self.to_use_data["regrId"],
-                "stockItemList": update_stock_master_items
-            }
-
-            
+                update_stock_master_payload = {
+                    "tpin": self.get_tpin(),
+                    "bhfId": self.get_branch_code(),
+                    "regrId": self.to_use_data["regrId"],
+                    "regrNm": self.to_use_data["regrId"],
+                    "modrNm": self.to_use_data["regrId"],
+                    "modrId": self.to_use_data["regrId"],
+                    "stockItemList": update_stock_master_items
+                }
+            else:
+                api_response(
+                    status="fail",
+                    message=response,
+                    status_code=300
+                )
