@@ -1,5 +1,7 @@
 from base.serializers.purchase.purchase_serializers import PurchaseSerializer
+from base.views.purchase.helper.purchase_helper import PurchaseHelper
 from base.utils.response_handler import api_response
+from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
 from base.models import Purchase
@@ -17,23 +19,13 @@ class PurchaseListCreateAPIView(APIView):
         )
 
     def post(self, request):
-        serializer = PurchaseSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return api_response(
-                status="success",
-                data=serializer.data,
-                status_code=status.HTTP_201_CREATED
-            )
-        return api_response(
-            status="fail",
-            is_error=True,
-            message="Validation failed",
-            data=serializer.errors,
-            status_code=status.HTTP_400_BAD_REQUEST
-        )
-
-
+        data = request.data
+        result = PurchaseHelper().format_purchase_data(data)
+        if isinstance(result, Response):
+            return result
+        return api_response("success", result)
+    
+    
 class PurchaseDetailAPIView(APIView):
 
     def get_object(self, pk):

@@ -8,7 +8,7 @@ ZRA_CREATE_ITEM = "/items/saveItem"
 ZRA_SAVE_STOCK_URL = "/stock/saveStockItems"
 ZRA_UPDATE_ITEM = "/items/updateItem"
 ZRA_SAVE_STOCK_MASTER = "/stockMaster/saveStockMaster"
-ZRA_SAVE_PURCHASE = "/trnsPurchase/savePurchase"
+ZRA_SAVE_PURCHASE = "trnsPurchase/savePurchase"
 ZRA_CREATE_CUSTOMER = "/branches/saveBrancheCustomers"
 ZRA_SALE = "/trnsSales/saveSales"
 UPDATE_IMPORT = "/imports/updateImportItems"
@@ -75,7 +75,7 @@ class ZRAClient:
     def create_user(self, payload):
         response = requests.post(url=self.create_user_url, json=payload, timeout=300)
         response.raise_for_status()
-        print(response.json())
+        print("response :",response.json())
         return response
 
     def create_item_zra(self, payload):   
@@ -99,15 +99,16 @@ class ZRAClient:
     
 
     def create_purchase_zra_client(self, payload):
-        def call_create_purchase():
-            response = requests.post(self.save_purchase_url, json=payload, timeout=300)
-            response.raise_for_status()
-            return response
+        response = requests.post(self.save_purchase_url, json=payload, timeout=300)
+        print(response.json())
+        response.raise_for_status()
+        return response
 
     
     def create_sale_zra_client(self, payload):
         response = requests.post(self.sale_url, json=payload, timeout=300)
         response.raise_for_status()
+        
         print(response.json())
         return response
     
