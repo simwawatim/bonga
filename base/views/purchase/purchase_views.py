@@ -21,9 +21,16 @@ class PurchaseListCreateAPIView(APIView):
     def post(self, request):
         data = request.data
         result = PurchaseHelper().format_purchase_data(data)
-        if isinstance(result, Response):
+
+        if hasattr(result, "data"):
             return result
-        return api_response("success", result)
+
+        return api_response(
+            status=result.get("status"),
+            message=result.get("message"),
+            data=result.get("data"),
+            status_code=200 if result.get("status") == "success" else 400
+        )
     
     
 class PurchaseDetailAPIView(APIView):

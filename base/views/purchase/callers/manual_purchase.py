@@ -10,7 +10,6 @@ class PurchaseInvoiceCreation(ZRAClient):
 
     def create_manual_purchase_invoice(self, purchase_data):
             name = purchase_data.get("name")
-            supplier_name = purchase_data.get("spplrNm") or purchase_data.get("supplier_name")
             supplierId = purchase_data.get("supplierId")
 
             if not supplierId or not str(supplierId).isdigit():
@@ -35,7 +34,6 @@ class PurchaseInvoiceCreation(ZRAClient):
                     status_code=404
                 )
 
-            modified_by = purchase_data.get("modified_by")
             cfmDt = datetime.now().strftime("%Y%m%d%H%M%S")
             pchsDt = datetime.now().strftime("%Y%m%d")
             purchase_invoice_no = purchase_data.get("spplrInvcNo") or purchase_data.get("custom_purchase__invoice")
@@ -47,6 +45,7 @@ class PurchaseInvoiceCreation(ZRAClient):
             EXCISE_RATE = 0.02
 
             items = purchase_data.get("purchase_invoice_items")
+            print(items)
 
             formatted_items = []
             item_seq = 1
@@ -78,16 +77,20 @@ class PurchaseInvoiceCreation(ZRAClient):
                 itemClassCode = item.get("itemClassCode")
                 packageUnitCode = item.get("packageUnitCode")
                 unitOfMeasure = item.get("unitOfMeasure") 
+                vatCd = item.get("VatCd")
 
-                VatCd = item.get("VatCd")
+                if vatCd not in vat_mapping:
+                    return api_response(
+                        status="fail",
+                        message=f"Invalid VatCd '{vatCd}'. Must be one of {list(vat_mapping.keys())}",
+                        status_code=400
+                    )
+
                 IplCd = item.get("IplCd")
                 tlCd = item.get("custom_tl")
-                get_excise_name = item.get("custom_excise")
+                exciseCd = item.get("custom_excise")
 
-                vatCd = next((code for code, desc in vat_mapping.items() if desc == VatCd), None)
-                iplCd = next((code for code, desc in ipl_mapping.items() if desc == IplCd), None)
-                tlCd = next((code for code, desc in tl_mapping.items() if desc == tlCd), None)
-                exciseCd = next((code for code, desc in excise_mapping.items() if desc == get_excise_name), None)
+
 
                 if vatCd == "A":
                     taxbl_amt = round(item_total / (1 + VAT_RATE), 2)
@@ -96,7 +99,7 @@ class PurchaseInvoiceCreation(ZRAClient):
                     taxbl_amt = item_total
                     vat_tax_amt = 0
 
-                ipl_tax_amt = round(taxbl_amt * IPL_RATE, 2) if iplCd else 0
+                ipl_tax_amt = round(taxbl_amt * IPL_RATE, 2) if IplCd else 0
                 tl_tax_amt = round(taxbl_amt * TL_RATE, 2) if tlCd else 0
                 excise_tax_amt = round(taxbl_amt * EXCISE_RATE, 2) if exciseCd else 0
 
@@ -117,21 +120,22 @@ class PurchaseInvoiceCreation(ZRAClient):
                     "splyAmt": item_total,
                     "dcRt": 0,
                     "dcAmt": 0,
-                    "taxTyCd": vatCd,
-                    "iplCatCd": iplCd,
+                    "iplCatCd": IplCd,
                     "tlCatCd": tlCd,
                     "exciseCatCd": exciseCd,
                     "taxblAmt": taxbl_amt,
                     "vatCatCd": vatCd,
-                    "iplTaxblAmt": round(taxbl_amt, 2) if iplCd else "",
+                    "iplTaxblAmt": round(taxbl_amt, 2) if IplCd else "",
                     "tlTaxblAmt": round(taxbl_amt, 2) if tlCd else "",
                     "exciseTaxblAmt": round(taxbl_amt, 2) if exciseCd else "",
                     "taxAmt": total_tax_amt,
-                    "iplAmt": ipl_tax_amt if iplCd else "",
+                    "iplAmt": ipl_tax_amt if IplCd else "",
                     "tlAmt": tl_tax_amt if tlCd else "",
                     "exciseTxAmt": excise_tax_amt if exciseCd else "",
                     "totAmt": total_amount
                 })
+
+                print("formated items :", formatted_items)
 
                 item_seq += 1
 
@@ -164,9 +168,9 @@ class PurchaseInvoiceCreation(ZRAClient):
             }
 
             print(json.dumps(payload, indent=2))
-
             response = self.create_purchase_zra_client(payload)
             response = response.json()
+            self.to_use_data = payload
             if response.get("resultCd") == "000":
                 update_stock_items = []
                 update_stock_master_items = []
@@ -224,6 +228,31 @@ class PurchaseInvoiceCreation(ZRAClient):
                     "modrId": self.to_use_data["regrId"],
                     "stockItemList": update_stock_master_items
                 }
+
+                response_status = response.get("resultCd")
+                response_message = response.get("resultMsg")
+
+                if response_status == "000":
+
+                    return {
+                        "status": "success",
+                        "message": "Purchase invoice created successfully",
+                        "data": {
+                            "resultCd": response_status,
+                            "resultMsg": response_message
+                        }
+                    }
+                else:
+             
+                    return {
+                        "status": "fail",
+                        "message": "Error creating purchase invoice.",
+                        "data": {
+                            "resultCd": response_status,
+                            "resultMsg": response_message
+                        }
+                    }
+
             else:
                 api_response(
                     status="fail",
