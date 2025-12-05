@@ -319,15 +319,10 @@ class NormaSale(ZRAClient):
         payload = self.build_payload(items, base_data)
         response = self.create_normal_sale_helper(payload)
         response = response.json()
-        apiCallerResponse = response
-        print(response)
-        print(f"Response from ZRA: {response}")
-        
+                
         if response.get("resultCd") == "000":
             zraRcptNo = response.get("data", {}).get("rcptNo")
             zraQrCodeUrl = response.get("data", {}).get("qrCodeUrl")
-            # self.update_sales_rcptno_by_inv_no(name, rcpt_no, 1)
-
             additionInfoToBeSaved = []
             additionInfoToBeSaved.extend([
                 payload["currencyTyCd"],

@@ -20,14 +20,61 @@ class PurchaseHelper():
 
 
     def format_purchase_data(self, data):
-
         supplierId = data.get("supplierId")
         spplrInvcNo = data.get("spplrInvcNo")
         pchsTyCd = data.get("pchsTyCd")
         regTyCd = data.get("regTyCd")
         pmtTyCd = data.get("pmtTyCd")
+        rcptTyCd  = data.get("rcptTyCd")
         pchsSttsCd = data.get("pchsSttsCd")
         items = data.get("items", [])
+
+        VALIDE_REGISTRATION_TYPE = ["A", "M"]
+        if regTyCd not in VALIDE_REGISTRATION_TYPE:
+            return api_response(
+                status="fail",
+                message=f"Invalid registration type '{regTyCd}'. Allowed types are {VALIDE_REGISTRATION_TYPE}.",
+                status_code=400
+            )
+        
+        VALIDE_TRANSACTION_TYPE = ["C", "N"]
+
+        if pchsTyCd not in VALIDE_TRANSACTION_TYPE:
+            return api_response(
+                status="fail",
+                message="Invalid purchase type code. Allowed values are: C, N",
+                status_code=400
+            )
+        
+        VALIDATE_PURCHASE_RECEIPT_TYPE = ["P", "R"]
+        if rcptTyCd not in VALIDATE_PURCHASE_RECEIPT_TYPE:
+            return api_response(
+                status="fail",
+                message="Invalid receipt type code. Allowed values are: P, R",
+                status_code=400
+            )
+        VALIDATE_PAYMENT_METHOD = ["01", "02", "03", "04", "05", "06", "07", "08"]
+
+        if pmtTyCd not in VALIDATE_PAYMENT_METHOD:
+            return api_response(
+                status="fail",
+                message="Invalid payment method code. Allowed values are 01–08.",
+                status_code=400
+            )
+
+        VALIDATE_TRANSACTION_PROGRESS = ["02", "05", "06", "04"]
+
+        if pchsSttsCd not in VALIDATE_TRANSACTION_PROGRESS:
+            return api_response(
+                status="fail",
+                message="Invalid transaction progress code. Allowed values are 02, 04, 05, 06.",
+                status_code=400
+            )
+
+                
+
+
+
 
         if not items:
             return api_response("error", "No items provided.", 400, True)
@@ -91,6 +138,7 @@ class PurchaseHelper():
             "regTyCd": regTyCd,
             "pmtTyCd": pmtTyCd,
             "pchsSttsCd": pchsSttsCd,
+            "rcptTyCd": rcptTyCd,
             "purchase_invoice_items": purchase_invoice_items
         }
 

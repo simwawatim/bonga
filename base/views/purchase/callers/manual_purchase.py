@@ -1,14 +1,13 @@
-import json
 from async_tasks.tasks import update_stock_and_stock_master
-from helper.supplier import SupplierHelper
 from base.utils.response_handler import api_response
-
+from helper.supplier import SupplierHelper
 from zra_client.client import ZRAClient
+from base.models import Purchase
 from datetime import datetime
+import json
 
 SUPPLIER_HELPER_INSTANCE  = SupplierHelper()
 class PurchaseInvoiceCreation(ZRAClient):
-
     def create_manual_purchase_invoice(self, purchase_data):
             name = purchase_data.get("name")
             supplierId = purchase_data.get("supplierId")
@@ -37,7 +36,7 @@ class PurchaseInvoiceCreation(ZRAClient):
 
             cfmDt = datetime.now().strftime("%Y%m%d%H%M%S")
             pchsDt = datetime.now().strftime("%Y%m%d")
-            purchase_invoice_no = purchase_data.get("spplrInvcNo") or purchase_data.get("custom_purchase__invoice")
+            spplrInvcNo = purchase_data.get("spplrInvcNo")
             remarks = purchase_data.get("remark") or purchase_data.get("custom_purchase_remarks")
 
             VAT_RATE = 0.16
@@ -139,19 +138,20 @@ class PurchaseInvoiceCreation(ZRAClient):
                 print("formated items :", formatted_items)
 
                 item_seq += 1
-
+            next_purchase_id = Purchase.objects.order_by('-id').first()
+            cisInvcNo = next_purchase_id.id + 1 if next_purchase_id else 1
             payload = {
                 "tpin": self.get_tpin(),
                 "bhfId": self.get_branch_code(),
-                "cisInvcNo": name,
+                "cisInvcNo": cisInvcNo,
                 "spplrTpin": tpin,
                 "spplrNm": name,
-                "spplrInvcNo": purchase_invoice_no,
-                "regTyCd": "M",
-                "pchsTyCd": "N",
-                "rcptTyCd": "P",
-                "pmtTyCd": "01",
-                "pchsSttsCd": "02",
+                "spplrInvcNo": spplrInvcNo,
+                "regTyCd": purchase_data.get("regTyCd"),
+                "pchsTyCd": purchase_data.get("pchsTyCd"),
+                "rcptTyCd": purchase_data.get("rcptTyCd"),
+                "pmtTyCd": purchase_data.get("pmtTyCd"),
+                "pchsSttsCd": purchase_data.get("pchsSttsCd"),
                 "cfmDt": cfmDt,
                 "pchsDt": pchsDt,
                 "cnclReqDt": "",
