@@ -1,6 +1,8 @@
 from flask import Blueprint, request, jsonify
 import requests
 from config import DJANGO_BASE_URL
+from decorator.auth_decorator import jwt_required
+from utils.header import get_headers
 
 sales_bp = Blueprint("sales_bp", __name__)
 
@@ -15,16 +17,13 @@ def safe_json(response):
 
 
 @sales_bp.route("/api/sales-credit-note/", methods=["GET", "POST"])
+@jwt_required
 def sales_credit_note():
-    tenant_id = request.args.get("tenant_id") or request.headers.get("X-Tenant-ID")
-    headers = {"X-Tenant-ID": tenant_id} if tenant_id else {}
+    headers = get_headers()
     data = request.get_json()
     if not data:
         return jsonify({"error": "Missing JSON body"}), 400
-    tenant_id = data.get("tenant_id")
-    if not tenant_id:
-        return jsonify({"status": "error", "message": "Missing tenant_id in body"}), 400
-    headers = {"X-Tenant-ID": tenant_id}
+
 
     try:
         django_response = requests.post(
@@ -36,16 +35,13 @@ def sales_credit_note():
     
 
 @sales_bp.route("/api/sales-debit-note/", methods=["POST"])
+@jwt_required
 def sale_debit_note():
-    tenant_id = request.args.get("tenant_id") or request.headers.get("X-Tenant-ID")
-    headers = {"X-Tenant-ID": tenant_id} if tenant_id else {}
+    headers = get_headers()
     data = request.get_json()
     if not data:
         return jsonify({"error": "Missing JSON body"}), 400
-    tenant_id = data.get("tenant_id")
-    if not tenant_id:
-        return jsonify({"status": "error", "message": "Missing tenant_id in body"}), 400
-    headers = {"X-Tenant-ID": tenant_id}
+
 
     try:
         django_response = requests.post(
@@ -56,13 +52,11 @@ def sale_debit_note():
         return jsonify({"error": str(e)}), 500
 
 @sales_bp.route("/api/sales/", methods=["GET", "POST"])
+@jwt_required
 def sales():
-    tenant_id = request.args.get("tenant_id") or request.headers.get("X-Tenant-ID")
-    headers = {"X-Tenant-ID": tenant_id} if tenant_id else {}
+    headers = get_headers()
 
     if request.method == "GET":
-        if not tenant_id:
-            return jsonify({"error": "Missing tenant_id"}), 400
         try:
             django_response = requests.get(
                 f"{DJANGO_BASE_URL}/sales/", params=dict(request.args), headers=headers
@@ -75,10 +69,6 @@ def sales():
         data = request.get_json()
         if not data:
             return jsonify({"error": "Missing JSON body"}), 400
-        tenant_id = data.get("tenant_id")
-        if not tenant_id:
-            return jsonify({"status": "error", "message": "Missing tenant_id in body"}), 400
-        headers = {"X-Tenant-ID": tenant_id}
 
         try:
             django_response = requests.post(
@@ -91,11 +81,9 @@ def sales():
 
 
 @sales_bp.route("/api/sales/<int:sale_id>/", methods=["GET", "PUT", "DELETE"])
+@jwt_required
 def sale_by_id(sale_id):
-    tenant_id = request.args.get("tenant_id") or request.headers.get("X-Tenant-ID")
-    if not tenant_id:
-        return jsonify({"error": "Missing tenant_id"}), 400
-    headers = {"X-Tenant-ID": tenant_id}
+    headers = get_headers()
 
     try:
         if request.method == "GET":

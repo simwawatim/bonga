@@ -1,6 +1,8 @@
 from flask import Blueprint, request, jsonify
 import requests
 from config import BASE_API, DJANGO_BASE_URL
+from decorator.auth_decorator import jwt_required
+from utils.header import get_headers
 
 suppliers_bp = Blueprint("suppliers_bp", __name__)
 
@@ -15,14 +17,10 @@ def safe_json(response):
 
 
 @suppliers_bp.route("/api/suppliers/", methods=["GET", "POST"])
+@jwt_required
 def suppliers():
-    tenant_id = request.args.get("tenant_id") or request.headers.get("X-Tenant-ID")
-    headers = {"X-Tenant-ID": tenant_id} if tenant_id else {}
-
-    # ------------------- GET ALL SUPPLIERS -------------------
+    headers = get_headers()
     if request.method == "GET":
-        if not tenant_id:
-            return jsonify({"error": "Missing tenant_id"}), 400
         try:
             django_response = requests.get(
                 f"{DJANGO_BASE_URL}/suppliers/",
@@ -39,12 +37,6 @@ def suppliers():
         if not data:
             return jsonify({"error": "Missing JSON body"}), 400
 
-        tenant_id = data.get("tenant_id") or tenant_id
-        if not tenant_id:
-            return jsonify({"error": "Missing tenant_id in body or headers"}), 400
-
-        headers = {"X-Tenant-ID": tenant_id}
-
         try:
             django_response = requests.post(
                 f"{DJANGO_BASE_URL}/suppliers/",
@@ -57,13 +49,11 @@ def suppliers():
 
 
 @suppliers_bp.route("/api/suppliers/<int:supplier_id>/", methods=["GET", "PUT", "DELETE"])
+@jwt_required
 def supplier_by_id(supplier_id):
-    tenant_id = request.args.get("tenant_id") or request.headers.get("X-Tenant-ID")
-    if not tenant_id:
-        return jsonify({"error": "Missing tenant_id"}), 400
+    
 
-    headers = {"X-Tenant-ID": tenant_id}
-
+    headers = get_headers()
     try:
         if request.method == "GET":
             django_response = requests.get(
