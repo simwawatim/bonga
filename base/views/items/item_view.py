@@ -12,6 +12,8 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 
 
 class ItemInfoListCreateView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
     def get(self, request):
         items = ItemInfo.objects.all()
         serializer = ItemInfoSerializer(items, many=True)
@@ -73,6 +75,8 @@ class ItemInfoListCreateView(APIView):
             )
 
 class ItemInfoDetailView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
     def get(self, request, pk):
         item = get_object_or_404(ItemInfo, pk=pk)
         serializer = ItemInfoSerializer(item)
