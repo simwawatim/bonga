@@ -31,3 +31,25 @@ def users():
             return jsonify(django_response.json()), django_response.status_code
         except requests.exceptions.RequestException as e:
             return jsonify({"error": str(e)}), 500
+
+
+@users_bp.route("/api/login/", methods=["POST"])
+def login():
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "Missing JSON body"}), 400
+
+    tenant_id = data.get("tenant_id") or request.headers.get("X-Tenant-ID")
+    if not tenant_id:
+        return jsonify({"error": "Missing tenant_id"}), 400
+
+    headers = {"X-Tenant-ID": tenant_id}
+    try:
+        django_response = requests.post(
+            f"{DJANGO_BASE_URL}/login/",
+            json=data,
+            headers=headers
+        )
+        return jsonify(django_response.json()), django_response.status_code
+    except requests.exceptions.RequestException as e:
+        return jsonify({"error": str(e)}), 500

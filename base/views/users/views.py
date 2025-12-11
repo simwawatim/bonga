@@ -5,9 +5,15 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from base.models import Profile
-from base.serializers.users.serializers import ProfileSerializer
+from base.serializers.users.serializers import LoginSerializer, ProfileSerializer
 from django_tenants.utils import connection, get_tenant_model
-
+from django.contrib.auth import authenticate
+from rest_framework import serializers, status
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth.models import User
+from django_tenants.utils import connection, get_tenant_model
 from zra_client.create_user import CreateUser
 
 
@@ -72,10 +78,6 @@ def create_user(request):
 
 @api_view(['GET'])
 def list_users(request):
-    """
-    List all users inside the current tenant schema,
-    along with tenant ID for reference.
-    """
     users = User.objects.all().values("id", "username", "email")
 
     tenant_model = get_tenant_model()
@@ -89,3 +91,53 @@ def list_users(request):
         },
         status=status.HTTP_200_OK
     )
+
+class LoginView(APIView):
+    """
+    Custom JWT login by email.
+    Returns access & refresh tokens with user info and tenant info.
+    Access token contains tenant ID and tenant name as custom claims.
+    """
+    def post(self, request):
+        serializer = LoginSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        email = serializer.validated_data["email"]
+        password = serializer.validated_data["password"]
+
+        # Get user by email
+        try:
+            user_obj = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return Response({"error": "Invalid email or password"}, status=status.HTTP_401_UNAUTHORIZED)
+
+        # Authenticate using username
+        user = authenticate(username=user_obj.username, password=password)
+        if user is None:
+            return Response({"error": "Invalid email or password"}, status=status.HTTP_401_UNAUTHORIZED)
+
+        # Get tenant info
+        tenant_model = get_tenant_model()
+        tenant = tenant_model.objects.get(schema_name=connection.schema_name)
+
+        # Create JWT tokens with custom claims
+        refresh = RefreshToken.for_user(user)
+
+        # Add custom claims to access token
+        access_token = refresh.access_token
+        access_token["tenant_id"] = str(tenant.id)
+        access_token["tenant_name"] = getattr(tenant, "name", connection.schema_name)
+
+        return Response({
+            "access": str(access_token),
+            "refresh": str(refresh),
+            "user": {
+                "id": user.id,
+                "username": user.username,
+                "email": user.email
+            },
+            "tenant": {
+                "id": str(tenant.id),
+                "name": getattr(tenant, "name", connection.schema_name)
+            }
+        }, status=status.HTTP_200_OK)

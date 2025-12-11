@@ -5,7 +5,7 @@ from base.views.supplier.supplier_view import SupplierDetailAPIView, SupplierLis
 from base.views.stock.stock_item_view import StockItemDetailView, StockItemListCreateView
 from base.views.items.item_view import ItemInfoDetailView, ItemInfoListCreateView
 from base.views.stock_master.stock_master_view import StockMasterByItemCode
-from  base.views.users.views import create_user, list_users
+from  base.views.users.views import LoginView, create_user, list_users
 from base.views.customers import customer_view
 from django.conf.urls.static import static
 from django.conf import settings
@@ -62,6 +62,7 @@ urlpatterns = [
         QuotationDetailAPIView.as_view()
         
         ),
+    path("login/", LoginView.as_view(), name="login"),
     
 ]
 if settings.DEBUG:
