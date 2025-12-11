@@ -1,11 +1,14 @@
 from functools import wraps
-from flask import request, jsonify
+from flask import Blueprint, request, jsonify
+import requests
 import jwt
 from datetime import datetime, timezone
+from config import DJANGO_BASE_URL
 
 JWT_SECRET_KEY = "aP9v3x!2rTq7LzF8uWk6sN1bG4yH0jD5"
 JWT_ALGORITHM = "HS256"
 
+# ---------------- JWT DECORATOR ----------------
 def jwt_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
@@ -57,27 +60,6 @@ def jwt_required(f):
                 "data": None
             }), 401
 
-        # call the view
-        response = f(*args, **kwargs)
-
-        # if the view already returns a tuple (data, status_code), unwrap
-        if isinstance(response, tuple) and len(response) == 2:
-            data, status_code = response
-            # check if already wrapped with "message/status/data"
-            if isinstance(data, dict) and "status" in data and "message" in data and "data" in data:
-                return jsonify(data), status_code
-            else:
-                return jsonify({
-                    "message": "Request was successful.",
-                    "status": "success",
-                    "data": data
-                }), status_code
-        else:
-            # assume 200 OK if view returns raw data
-            return jsonify({
-                "message": "Request was successful.",
-                "status": "success",
-                "data": response
-            }), 200
-
+        return f(*args, **kwargs)
     return decorated
+
