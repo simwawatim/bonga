@@ -1,3 +1,5 @@
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from base.serializers.purchase.purchase_serializers import PurchaseSerializer
 from base.views.purchase.helper.purchase_helper import PurchaseHelper
 from base.utils.response_handler import api_response
@@ -9,6 +11,8 @@ from base.models import Purchase
 
 
 class PurchaseListCreateAPIView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
     def get(self, request):
         purchases = Purchase.objects.all()
         serializer = PurchaseSerializer(purchases, many=True)
@@ -34,7 +38,8 @@ class PurchaseListCreateAPIView(APIView):
     
     
 class PurchaseDetailAPIView(APIView):
-
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
     def get_object(self, pk):
         try:
             return Purchase.objects.get(pk=pk)

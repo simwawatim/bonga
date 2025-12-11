@@ -7,7 +7,13 @@ from base.models import StockItem, ItemInfo
 from rest_framework.views import APIView
 from rest_framework import status
 from helper.stock_check import CheckStock
+
+
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
 class StockItemListCreateView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
     def get(self, request):
         stock_items = StockItem.objects.select_related('item', 'created_by').all()
         serializer = StockItemSerializer(stock_items, many=True)
@@ -50,8 +56,8 @@ class StockItemListCreateView(APIView):
             )
         
 class StockItemDetailView(APIView):
-
-
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
     def get(self, request, pk):
         try:
             item = get_object_or_404(ItemInfo, pk=pk)

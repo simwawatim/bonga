@@ -5,8 +5,12 @@ from django.shortcuts import get_object_or_404
 from base.models import ItemStockMaster, ItemInfo
 from base.serializers.stockmaster.stockmasterserializer import ItemStockMasterSerializer
 
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 class ItemStockMasterListCreateAPIView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
     def get(self, request):
         stock_masters = ItemStockMaster.objects.all()
         serializer = ItemStockMasterSerializer(stock_masters, many=True)
@@ -44,7 +48,8 @@ class ItemStockMasterListCreateAPIView(APIView):
 
 
 class ItemStockMasterRetrieveUpdateDestroyAPIView(APIView):
-
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
     def get_object(self, pk):
         return get_object_or_404(ItemStockMaster, pk=pk)
 

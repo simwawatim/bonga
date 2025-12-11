@@ -29,7 +29,6 @@ def jwt_required(f):
                     "data": None
                 }), 401
 
-
             tenant_id = payload.get("tenant_id")
             if not tenant_id:
                 return jsonify({
@@ -37,6 +36,8 @@ def jwt_required(f):
                     "status": "fail",
                     "data": None
                 }), 401
+
+            # attach user info to request
             request.user = {
                 "user_id": payload.get("user_id"),
                 "tenant_id": tenant_id,
@@ -56,6 +57,27 @@ def jwt_required(f):
                 "data": None
             }), 401
 
-        return f(*args, **kwargs)
+        # call the view
+        response = f(*args, **kwargs)
+
+        # if the view already returns a tuple (data, status_code), unwrap
+        if isinstance(response, tuple) and len(response) == 2:
+            data, status_code = response
+            # check if already wrapped with "message/status/data"
+            if isinstance(data, dict) and "status" in data and "message" in data and "data" in data:
+                return jsonify(data), status_code
+            else:
+                return jsonify({
+                    "message": "Request was successful.",
+                    "status": "success",
+                    "data": data
+                }), status_code
+        else:
+            # assume 200 OK if view returns raw data
+            return jsonify({
+                "message": "Request was successful.",
+                "status": "success",
+                "data": response
+            }), 200
 
     return decorated

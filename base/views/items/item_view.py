@@ -7,6 +7,8 @@ from base.utils.response_handler import api_response
 from rest_framework.response import Response
 from zra_client.create_item import CreateItem
 from django.db.models import ProtectedError
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 
 class ItemInfoListCreateView(APIView):

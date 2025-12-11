@@ -8,8 +8,12 @@ from rest_framework.views import APIView
 from base.models import Sale, SaleItem
 from rest_framework import status
 from django.shortcuts import get_object_or_404
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 class SaleListCreateAPIView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
     def get(self, request):
         sales = Sale.objects.all()
         serializer = SaleSummarySerializer(sales, many=True)
@@ -25,6 +29,8 @@ class SaleListCreateAPIView(APIView):
 
 
 class SaleCreditNoteAPIView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
     def post(self, request):
         data = request.data
         result = CreditSaleHelper().process_credit_note(data)
@@ -34,6 +40,8 @@ class SaleCreditNoteAPIView(APIView):
     
 
 class SaleDebitNoteAPIView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
     def post(self, request):
         data = request.data
         result = DebitSaleHelper().process_debit_note(data)
@@ -42,6 +50,8 @@ class SaleDebitNoteAPIView(APIView):
         return api_response("success", result)
 
 class SaleRetrieveAPIView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
     def get(self, request, pk):
         sale = get_object_or_404(Sale, pk=pk)
         serializer = SaleSerializer(sale)
@@ -61,6 +71,8 @@ class SaleItemListCreateAPIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class SaleItemRetrieveAPIView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
     def get(self, request, pk):
         item = get_object_or_404(SaleItem, pk=pk)
         serializer = SaleItemSerializer(item)

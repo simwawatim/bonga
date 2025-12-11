@@ -5,10 +5,13 @@ from rest_framework import status
 from base.serializers.stock_master.stock_master_serializer import ItemStockMasterSerializer
 from base.utils.response_handler import api_response
 from base.models import ItemInfo, ItemStockMaster
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 
 class StockMasterByItemCode(APIView):
-
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
     def get(self, request, code):
         try:
             item = ItemInfo.objects.get(code=code)

@@ -6,9 +6,13 @@ from base.serializers.customers.customer_serializer import CustomerInfoSerialize
 from base.utils.response_handler import api_response
 from zra_client.create_customer import CreateUser
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 
 class CustomerInfoListCreateView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
     def get(self, request):
         customers = CustomerInfo.objects.all()
         serializer = CustomerInfoSerializer(customers, many=True)
@@ -39,6 +43,8 @@ class CustomerInfoListCreateView(APIView):
 
 
 class CustomerInfoDetailView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
     def get(self, request, pk):
         customer = get_object_or_404(CustomerInfo, pk=pk)
         serializer = CustomerInfoSerializer(customer)

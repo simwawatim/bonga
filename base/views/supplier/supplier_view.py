@@ -4,9 +4,12 @@ from rest_framework import status
 from django.shortcuts import get_object_or_404
 from base.models import Supplier
 from base.serializers.supplier.supplier_serializers import SupplierSerializer
-
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 class SupplierListCreateAPIView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
     def get(self, request):
         suppliers = Supplier.objects.all()
         serializer = SupplierSerializer(suppliers, many=True)
@@ -31,6 +34,8 @@ class SupplierListCreateAPIView(APIView):
 
 
 class SupplierDetailAPIView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
     def get_object(self, pk):
         return get_object_or_404(Supplier, pk=pk)
 

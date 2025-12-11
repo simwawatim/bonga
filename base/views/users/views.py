@@ -15,6 +15,9 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.models import User
 from django_tenants.utils import connection, get_tenant_model
 from zra_client.create_user import CreateUser
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 
 
@@ -23,6 +26,8 @@ def generate_random_username(length=8):
     return ''.join(random.choices(chars, k=length))
 
 @api_view(['POST'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
 def create_user(request):
     username = generate_random_username()
     email = request.data.get("email")
@@ -77,6 +82,8 @@ def create_user(request):
 
 
 @api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
 def list_users(request):
     users = User.objects.all().values("id", "username", "email")
 
@@ -93,10 +100,6 @@ def list_users(request):
     )
 
 class LoginView(APIView):
-    """
-    Custom JWT login by email.
-    Returns access & refresh tokens with user info and tenant info.
-    """
 
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
@@ -120,7 +123,6 @@ class LoginView(APIView):
         except tenant_model.DoesNotExist:
             return Response({"error": "Tenant not found"}, status=status.HTTP_404_NOT_FOUND)
 
-        # Create JWT tokens with custom claims
         refresh = RefreshToken.for_user(user)
         access_token = refresh.access_token
         access_token["tenant_id"] = str(tenant.id)
