@@ -1,6 +1,8 @@
 from flask import Blueprint, request, jsonify
 import requests
 from config import DJANGO_BASE_URL
+from decorator.auth_decorator import jwt_required
+from utils.header import get_headers
 
 quotation_bp = Blueprint("quotation_bp", __name__)
 
@@ -14,20 +16,14 @@ def safe_json(response):
         return {"error": "Empty response from server."}
 
 @quotation_bp.route("/api/quotation-create/", methods=["POST"])
+@jwt_required
 def quotation_create():
     data = request.get_json()
 
     if not data:
         return jsonify({"error": "Missing JSON body"}), 400
 
-    tenant_id = data.get("tenant_id")
-    if not tenant_id:
-        return jsonify({
-            "status": "error",
-            "message": "Missing tenant_id in body"
-        }), 400
-
-    headers = {"X-Tenant-ID": tenant_id}
+    headers = get_headers()
 
     try:
         django_response = requests.post(
@@ -43,13 +39,9 @@ def quotation_create():
 
 
 @quotation_bp.route("/api/quotations/", methods=["GET"])
+@jwt_required
 def quotation_list():
-    tenant_id = request.args.get("tenant_id") or request.headers.get("X-Tenant-ID")
-
-    if not tenant_id:
-        return jsonify({"error": "Missing tenant_id"}), 400
-
-    headers = {"X-Tenant-ID": tenant_id}
+    headers = get_headers()
 
     try:
         django_response = requests.get(
@@ -65,13 +57,9 @@ def quotation_list():
 
 
 @quotation_bp.route("/api/quotations/<int:quotation_id>/", methods=["GET"])
+@jwt_required
 def quotation_detail(quotation_id):
-    tenant_id = request.args.get("tenant_id") or request.headers.get("X-Tenant-ID")
-
-    if not tenant_id:
-        return jsonify({"error": "Missing tenant_id"}), 400
-
-    headers = {"X-Tenant-ID": tenant_id}
+    headers = get_headers()
 
     try:
         django_response = requests.get(
