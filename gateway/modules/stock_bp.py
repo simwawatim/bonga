@@ -1,6 +1,8 @@
 from flask import Blueprint, request, jsonify
 import requests
-from config import BASE_API, DJANGO_BASE_URL
+from config import DJANGO_BASE_URL
+from decorator.auth_decorator import jwt_required
+from utils.header import get_headers
 
 stock_bp = Blueprint("stock_bp", __name__)
 
@@ -15,20 +17,14 @@ def safe_json(response):
         return {"error": "Empty response from server."}
 
 
-def get_tenant_id():
-    """Helper to retrieve tenant_id from query params or headers."""
-    return request.args.get("tenant_id") or request.headers.get("X-Tenant-ID")
-
 
 @stock_bp.route("/api/stockitems/", methods=["GET", "POST"])
+@jwt_required
 def stockitems():
     try:
-        if request.method == "GET":
-            tenant_id = get_tenant_id()
-            if not tenant_id:
-                return jsonify({"error": "Missing tenant_id"}), 400
+        headers = get_headers()
 
-            headers = {"X-Tenant-ID": tenant_id}
+        if request.method == "GET":
             django_response = requests.get(
                 f"{DJANGO_BASE_URL}/stockitems/",
                 params=dict(request.args),
@@ -37,8 +33,6 @@ def stockitems():
             return jsonify(safe_json(django_response)), django_response.status_code
 
         elif request.method == "POST":
-            data = request.get_json()
-
             if not request.is_json:
                 return jsonify({
                     "status": "error",
@@ -47,24 +41,12 @@ def stockitems():
 
             data = request.get_json(silent=True)
             if not data:
-                return jsonify({
-                    "status": "error",
-                    "message": "Missing JSON body"
-                }), 400
-
-            tenant_id = data.get("tenant_id")
-            if not tenant_id:
-                return jsonify({
-                    "status": "error",
-                    "message": "Missing tenant_id in body"
-                }), 400
-
-            headers = {"X-Tenant-ID": tenant_id}
-            if not data:
                 return jsonify({"error": "Missing JSON body"}), 400
 
-            if "tenant_id" not in data:
-                data["tenant_id"] = tenant_id
+            # If tenant_id is in POST data, override headers
+            tenant_id = data.get("tenant_id")
+            if tenant_id:
+                headers = get_headers(tenant_id=tenant_id)
 
             django_response = requests.post(
                 f"{DJANGO_BASE_URL}/stockitems/",
@@ -78,13 +60,9 @@ def stockitems():
 
 
 @stock_bp.route("/api/stockitems/<int:stock_id>/", methods=["GET", "PUT", "DELETE"])
+@jwt_required
 def stockitem_by_id(stock_id):
-    tenant_id = get_tenant_id()
-    if not tenant_id:
-        return jsonify({"error": "Missing tenant_id"}), 400
-
-    headers = {"X-Tenant-ID": tenant_id}
-
+    headers = get_headers()
     try:
         if request.method == "GET":
             django_response = requests.get(
@@ -93,7 +71,7 @@ def stockitem_by_id(stock_id):
             )
 
         elif request.method == "PUT":
-            data = request.get_json()
+            data = request.get_json(silent=True)
             if not data:
                 return jsonify({"error": "Missing JSON body"}), 400
             django_response = requests.put(

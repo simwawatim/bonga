@@ -1,6 +1,8 @@
 from flask import Blueprint, request, jsonify
 import requests
 from config import BASE_API, DJANGO_BASE_URL
+from decorator.auth_decorator import jwt_required
+from utils.header import get_headers
 
 stock_master_bp = Blueprint("stock_master_bp", __name__)
 
@@ -20,12 +22,10 @@ def get_tenant_id():
 
 
 @stock_master_bp.route("/api/stock-master/<string:stock_id>/", methods=["GET", "PUT", "DELETE"])
+@jwt_required
 def stockitem_by_id(stock_id):
-    tenant_id = get_tenant_id()
-    if not tenant_id:
-        return jsonify({"error": "Missing tenant_id"}), 400
 
-    headers = {"X-Tenant-ID": tenant_id}
+    headers = get_headers()
 
     try:
         if request.method == "GET":
