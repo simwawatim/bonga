@@ -96,8 +96,8 @@ class LoginView(APIView):
     """
     Custom JWT login by email.
     Returns access & refresh tokens with user info and tenant info.
-    Access token contains tenant ID and tenant name as custom claims.
     """
+
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -105,25 +105,23 @@ class LoginView(APIView):
         email = serializer.validated_data["email"]
         password = serializer.validated_data["password"]
 
-        # Get user by email
         try:
             user_obj = User.objects.get(email=email)
         except User.DoesNotExist:
             return Response({"error": "Invalid email or password"}, status=status.HTTP_401_UNAUTHORIZED)
 
-        # Authenticate using username
         user = authenticate(username=user_obj.username, password=password)
-        if user is None:
+        if not user:
             return Response({"error": "Invalid email or password"}, status=status.HTTP_401_UNAUTHORIZED)
 
-        # Get tenant info
-        tenant_model = get_tenant_model()
-        tenant = tenant_model.objects.get(schema_name=connection.schema_name)
+        try:
+            tenant_model = get_tenant_model()
+            tenant = tenant_model.objects.get(schema_name=connection.schema_name)
+        except tenant_model.DoesNotExist:
+            return Response({"error": "Tenant not found"}, status=status.HTTP_404_NOT_FOUND)
 
         # Create JWT tokens with custom claims
         refresh = RefreshToken.for_user(user)
-
-        # Add custom claims to access token
         access_token = refresh.access_token
         access_token["tenant_id"] = str(tenant.id)
         access_token["tenant_name"] = getattr(tenant, "name", connection.schema_name)

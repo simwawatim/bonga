@@ -1,10 +1,12 @@
 from flask import Blueprint, request, jsonify
 import requests
 from config import DJANGO_BASE_URL
+from decorator.auth_decorator import jwt_required
 
 users_bp = Blueprint("users_bp", __name__)
 
 @users_bp.route("/api/users/", methods=["GET", "POST"])
+@jwt_required
 def users():
     tenant_id = request.args.get("tenant_id") or request.headers.get("X-Tenant-ID")
 
