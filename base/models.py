@@ -22,7 +22,7 @@ class Profile(models.Model):
 class CustomerInfo(models.Model):
     name = models.CharField()
     address = models.CharField()
-    customerTpin = models.IntegerField()
+    customerTpin = models.CharField(max_length=10, unique=True)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user_created")

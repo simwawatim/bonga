@@ -93,8 +93,10 @@ class ZRAClient:
 
     
     def create_customer(self, payload):
+        print("******Calling *********")
         response = requests.post(self.create_customer_url, json=payload, timeout=300)
         response.raise_for_status() 
+        print(response.json())
         return response
     
 
