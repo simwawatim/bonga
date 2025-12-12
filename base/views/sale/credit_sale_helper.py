@@ -197,4 +197,4 @@ class CreditSaleHelper(CreditNoteSale, ValidateSale):
             
             CheckStock.increaseStock(item.get('itemCd'), item.get("qty"))
 
-        return api_response("success", "Credit Invoice created successfully", 200)
+        return api_response(status="success", message="Credit Invoice created successfully", data={}, status_code= 200)

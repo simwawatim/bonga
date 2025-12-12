@@ -157,4 +157,4 @@ class NormalSaleHelper:
             )
             CheckStock.reduceStock(item.get('itemCd'), item.get("qty"))
 
-        return api_response("success", "All Sales Invoice created successfully", 200)
+        return api_response(status="success", message="All Sales Invoice created successfully", data={}, status_code=200)
