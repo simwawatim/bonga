@@ -96,7 +96,8 @@ REST_FRAMEWORK = {
 # }
 
 MIDDLEWARE = [
-    # 'django_tenants.middleware.main.TenantMainMiddleware',  # must be first
+     # must be first
+    # 'django_tenants.middleware.main.TenantMainMiddleware', 
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -104,6 +105,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'tenant_router.middleware.SmartTenantRoutingMiddleware',
+    
 ]
 
 
