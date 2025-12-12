@@ -18,6 +18,7 @@ class PurchaseListCreateAPIView(APIView):
         serializer = PurchaseSerializer(purchases, many=True)
         return api_response(
             status="success",
+            message="Purchase fetched successfully",
             data=serializer.data,
             status_code=status.HTTP_200_OK
         )
@@ -51,14 +52,15 @@ class PurchaseDetailAPIView(APIView):
         if not purchase:
             return api_response(
                 status="fail",
-                is_error=True,
                 message="Purchase not found",
+                data={},
                 status_code=status.HTTP_404_NOT_FOUND
             )
 
         serializer = PurchaseSerializer(purchase)
         return api_response(
             status="success",
+            message="Purchase fetched successfully",
             data=serializer.data,
             status_code=status.HTTP_200_OK
         )
@@ -68,8 +70,8 @@ class PurchaseDetailAPIView(APIView):
         if not purchase:
             return api_response(
                 status="fail",
-                is_error=True,
                 message="Purchase not found",
+                data={},
                 status_code=status.HTTP_404_NOT_FOUND
             )
 
@@ -78,15 +80,15 @@ class PurchaseDetailAPIView(APIView):
             serializer.save()
             return api_response(
                 status="success",
+                message="Purchase updated successfully",
                 data=serializer.data,
                 status_code=status.HTTP_200_OK
             )
 
         return api_response(
             status="fail",
-            is_error=True,
-            message="Validation failed",
-            data=serializer.errors,
+            message=serializer.errors,
+            data={},
             status_code=status.HTTP_400_BAD_REQUEST
         )
 
@@ -95,8 +97,8 @@ class PurchaseDetailAPIView(APIView):
         if not purchase:
             return api_response(
                 status="fail",
-                is_error=True,
                 message="Purchase not found",
+                data={},
                 status_code=status.HTTP_404_NOT_FOUND
             )
 
@@ -104,5 +106,6 @@ class PurchaseDetailAPIView(APIView):
         return api_response(
             status="success",
             message="Purchase deleted successfully",
+            data={},
             status_code=status.HTTP_204_NO_CONTENT
         )
