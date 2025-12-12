@@ -1,5 +1,7 @@
 from django.urls import path
 from .views import ClientCreate, ClientDelete, ClientDetail, ClientList, ClientUpdate
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('', ClientList.as_view(), name='create-tenant'),
@@ -9,3 +11,5 @@ urlpatterns = [
     path('customers/tenants/<int:id>/update/', ClientUpdate.as_view(), name='tenant-update'),
     path('customers/tenants/<int:id>/delete/', ClientDelete.as_view(), name='tenant-delete'),
 ]
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
