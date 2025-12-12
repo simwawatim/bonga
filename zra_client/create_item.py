@@ -31,7 +31,7 @@ class CreateItem(ZRAClient):
 
         return f"{prefix}{new_number}"
 
-    def prepare_save_item_payload(self, data):
+    def prepare_save_item_payload(self, data, request):
         print("Input data:", data)
 
         itemName = data.get("name")
@@ -81,10 +81,10 @@ class CreateItem(ZRAClient):
             "sftyQty": qty,
             "isrcAplcbYn": "N",
             "useYn": "Y",
-            "regrNm": "ADMIN",
-            "regrId": "ADMIN",
-            "modrNm": "ADMIN",
-            "modrId": "ADMIN"
+            "regrNm": request.user.username,
+            "regrId": request.user.id,
+            "modrNm": request.user.username,
+            "modrId": request.user.id
         }
 
         print("ZRA Payload:\n", json.dumps(payload, indent=4, sort_keys=True))

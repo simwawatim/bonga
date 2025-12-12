@@ -17,7 +17,7 @@ class ItemInfoListCreateView(APIView):
     def get(self, request):
         items = ItemInfo.objects.all()
         serializer = ItemInfoSerializer(items, many=True)
-        return api_response("success", serializer.data, status_code=200)
+        return api_response(status="success", message="Item fetched successfully", data=serializer.data, status_code=200)
 
 
     def post(self, request):
@@ -36,7 +36,7 @@ class ItemInfoListCreateView(APIView):
 
 
             external_client = CreateItem()
-            external_response, generated_code = external_client.prepare_save_item_payload(data)
+            external_response, generated_code = external_client.prepare_save_item_payload(data, request)
 
     
             if hasattr(external_response, "status_code"):
@@ -68,7 +68,7 @@ class ItemInfoListCreateView(APIView):
 
         except Exception as e:
             return api_response(
-                status="error",
+                status="fail",
                 message=f"Internal server error: {str(e)}",
                 data={},
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -80,14 +80,14 @@ class ItemInfoDetailView(APIView):
     def get(self, request, pk):
         item = get_object_or_404(ItemInfo, pk=pk)
         serializer = ItemInfoSerializer(item)
-        return api_response("success", serializer.data, status_code=200)
+        return api_response("success", message="Item fetched successfully", data=serializer.data, status_code=200)
 
     def put(self, request, pk):
         item = get_object_or_404(ItemInfo, pk=pk)
         serializer = ItemInfoSerializer(item, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return api_response("success", serializer.data)
+            return api_response(status="success", message="Item updateed successfully", data= serializer.data, status_code=200)
         first_field, messages = next(iter(serializer.errors.items()))
         return api_response("error", f"{first_field}: {messages[0]}", status_code=400, is_error=True)
 
@@ -96,22 +96,22 @@ class ItemInfoDetailView(APIView):
             item = get_object_or_404(ItemInfo, pk=pk)
             item.delete()
             return api_response(
-                "success",
-                "Item deleted successfully.",
+                status="success",
+                message="Item deleted successfully.",
+                data={},
                 status_code=200,
-                is_error=False
             )
         except ProtectedError:
             return api_response(
-                "error",
-                "Cannot delete item because it is referenced in other records.",
+                status="fail",
+                message="Cannot delete item because it is referenced in other records.",
+                data={},
                 status_code=400,
-                is_error=True
             )
         except Exception as e:
             return api_response(
-                "error",
-                f"Internal server error during delete: {str(e)}",
+                status="fail",
+                message=f"Internal server error during delete: {str(e)}",
+                data={},
                 status_code=500,
-                is_error=True
             )
