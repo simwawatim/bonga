@@ -44,7 +44,7 @@ class CustomerInfoListCreateView(APIView):
                 print("POST /customers/ error response:", error_response.data)
                 return error_response
 
-            serializer.save()
+            serializer.save(created_by=request.user, updated_by=request.user)
             response = api_response("success", serializer.data, status_code=201)
             print("POST /customers/ response:", response.data)
             return response
@@ -70,7 +70,7 @@ class CustomerInfoDetailView(APIView):
         customer = get_object_or_404(CustomerInfo, pk=pk)
         serializer = CustomerInfoSerializer(customer, data=request.data, partial=True)
         if serializer.is_valid():
-            serializer.save()
+            serializer.save(updated_by=request.user)
             response = api_response("success", serializer.data)
             print(f"PUT /customers/{pk}/ response:", response.data)
             return response

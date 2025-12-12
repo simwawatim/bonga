@@ -57,7 +57,7 @@ class ItemInfoListCreateView(APIView):
                 )
 
     
-            item_instance = serializer.save(code=generated_code)
+            item_instance = serializer.save(code=generated_code, created_by=request.user)
 
             return api_response(
                 status="success",

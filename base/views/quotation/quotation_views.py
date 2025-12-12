@@ -19,7 +19,7 @@ class QuotationCreateAPIView(APIView):
         serializer = QuotationCreateSerializer(data=request.data, context={"request": request})
 
         if serializer.is_valid():
-            quotation = serializer.save()
+            quotation = serializer.save(created_by= request.user,)
             return api_response(
                 status="success",
                 message="Quotation created successfully",

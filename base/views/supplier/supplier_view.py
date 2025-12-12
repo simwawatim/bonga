@@ -21,7 +21,7 @@ class SupplierListCreateAPIView(APIView):
     def post(self, request):
         serializer = SupplierSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            serializer.save(created_by=request.user)
             return Response({
                 "status": "success",
                 "message": "Supplier created successfully",
@@ -49,9 +49,9 @@ class SupplierDetailAPIView(APIView):
 
     def put(self, request, pk):
         supplier = self.get_object(pk)
-        serializer = SupplierSerializer(supplier, data=request.data, partial=True)
+        serializer = SupplierSerializer(supplier, data=request.data,  partial=True)
         if serializer.is_valid():
-            serializer.save()
+            serializer.save(updated_by= request.user)
             return Response({
                 "status": "success",
                 "message": "Supplier updated successfully",

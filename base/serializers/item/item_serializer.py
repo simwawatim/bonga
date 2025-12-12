@@ -3,6 +3,7 @@ from base.models import ItemInfo
 
 class ItemInfoSerializer(serializers.ModelSerializer):
     code = serializers.CharField(required=False, allow_blank=True) 
+    read_only_fields = ('created_by', 'updated_by', 'created_at', 'updated_at')
 
     class Meta:
         model = ItemInfo
